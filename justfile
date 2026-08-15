@@ -1,0 +1,53 @@
+default:
+    just --list
+
+[unix]
+_install-prek:
+    #!/usr/bin/env bash
+    if ( which prek > /dev/null 2>&1 )
+    then
+        prek install --prepare-hooks
+    else
+        echo "-----------------------------------------------------------------"
+        echo "prek is not installed - cannot enable prek hooks!"
+        echo "Recommendation: Install prek ('brew install prek')."
+        echo "-----------------------------------------------------------------"
+    fi
+
+[windows]
+_install-prek:
+    #!powershell.exe
+    Write-Host "Please ensure prek hooks are installed using 'prek install --prepare-hooks'"
+
+install: (uv "sync" "--group" "dev") && _install-prek
+
+update: (uv "sync" "--group" "dev")
+
+uv *args:
+    uv {{args}}
+
+test *args: (uv "run" "pytest" "--cov=python_intl" "--cov-report" "term-missing:skip-covered" args)
+
+test-all: (uv "run" "tox")
+
+ruff *args: (uv "run" "ruff" "check" "python_intl" "tests" args)
+
+mypy *args: (uv "run" "mypy" "python_intl" args)
+
+ty *args: (uv "run" "ty" "check" "python_intl" args)
+
+lint: ruff ty mypy
+
+release version: (uv "version" version)
+    git add pyproject.toml
+    git commit -m "release: 🔖 v$(uv version --short)" --no-verify
+    git tag "v$(uv version --short)"
+    git push
+    git push --tags
+
+version-bump version_bump: (uv "version" "--bump" version_bump)
+    git add pyproject.toml
+    git commit -m "release: 🔖 v$(uv version --short)" --no-verify
+    git tag "v$(uv version --short)"
+    git push
+    git push --tags

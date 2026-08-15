@@ -1,0 +1,55 @@
+[project]
+name = "python-intl"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "David Danier", email = "david.danier@gmail.com" }
+]
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.12"
+dependencies = [
+    "pyicu>=2.16.2",
+]
+
+[project.urls]
+Repository = "https://github.com/ddanier/python-intl"
+
+[dependency-groups]
+dev = [
+    "mypy>=2.3.1",
+    "pyright>=1.1.411",
+    "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.16.3",
+    "tox>=4.60.0",
+    "ty>=0.0.72",
+]
+
+[tool.pytest.ini_options]
+markers = [
+    "unit: mark a test as a unit test",
+]
+
+[tool.ruff]
+line-length = 115
+target-version = "py312"
+output-format = "grouped"
+
+[tool.ruff.lint]
+select = ["F","E","W","C","I","N","UP","ANN","S","B","A","COM","C4","T20","PT","ARG","TD","RUF"]
+ignore = ["A001","A002","A003","ANN401","C901","N8","B008","F405","F821"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"conftest.py" = ["S101","ANN","F401"]
+"test_*.py" = ["S101","ANN","F401"]
+
+[build-system]
+requires = ["uv_build>=0.12.3,<0.13.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "python_intl"
+module-root = ""
