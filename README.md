@@ -12,10 +12,10 @@ exists and this also is not complete yet.
 ### Example usage
 
 ```python
+import datetime
 from python_intl import DateTimeFormat
 
-
-datetime_ = dt.datetime(2026, 8, 15)
+datetime_ = datetime.datetime(2026, 8, 15)
 formatter = DateTimeFormat("de-DE", {"year": "numeric", "month": "2-digit", "day": "2-digit"})
 formatter.format(datetime_)  # Will output the German format: "15.08.2026"
 ```
