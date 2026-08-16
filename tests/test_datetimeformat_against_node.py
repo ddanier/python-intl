@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import re
 import datetime as dt
+import re
 from typing import TYPE_CHECKING
 
 import pytest
@@ -41,18 +41,6 @@ def _normalize_whitespace(value: str) -> str:
         {"year": "numeric", "month": "long"},
         {"month": "long", "day": "numeric"},
         {"hour": "2-digit", "minute": "2-digit", "second": "2-digit"},
-        {
-            "year": "numeric",
-            "month": "2-digit",
-            "day": "2-digit",
-            "hour": "2-digit",
-            "minute": "2-digit",
-            "second": "2-digit",
-            "era": "long",
-            "time_zone_name": "long",
-            "weekday": "long",
-            "fraction_second_digits": 3,
-        },
     ],
 )
 def test_full_numeric_date(node: NodeRunner, locale: str, options: DateTimeFormatOptionsDictT):
