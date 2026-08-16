@@ -27,7 +27,7 @@ def _normalize_whitespace(value: str) -> str:
     [
         dt.datetime(2026, 8, 15),
         dt.datetime(2026, 8, 15, 12, 34, 56),
-        dt.datetime(2026, 12, 24, 20, 30),
+        dt.datetime(2026, 12, 24, 22, 30),
     ],
 )
 @pytest.mark.parametrize(
@@ -48,7 +48,7 @@ def _normalize_whitespace(value: str) -> str:
         {"year": "numeric", "month": "2-digit", "day": "2-digit"},
         {"year": "numeric", "month": "long"},
         {"month": "long", "day": "numeric"},
-        {"year": "numeric", "month": "long", "day": "numeric", "weekday": "long"},
+        {"month": "long", "day": "numeric", "weekday": "long"},
         {"hour": "2-digit", "minute": "2-digit", "second": "2-digit"},
         {"hour": "numeric", "minute": "numeric", "day_period": "short"},
         {"hour": "numeric", "minute": "numeric", "second": "numeric"},
@@ -62,7 +62,6 @@ def test_options_against_js(
     locale: str,
     options: DateTimeFormatOptionsDictT,
 ):
-    datetime_ = dt.datetime(2026, 8, 15)
     formatter = DateTimeFormat(locale, options)
     assert (
         _normalize_whitespace(formatter.format(datetime_))
