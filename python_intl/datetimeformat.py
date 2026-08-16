@@ -163,11 +163,11 @@ def _options_to_possible_skeletons(options: DateTimeFormatOptions) -> Iterable[s
 
     match options.day_period:
         case "short":
-            skeleton_parts.append("b")
+            skeleton_parts.append("B")
         case "long":
-            skeleton_parts.append("bbbb")
+            skeleton_parts.append("BBBB")
         case "narrow":
-            skeleton_parts.append("bbbbb")
+            skeleton_parts.append("BBBBB")
 
     match (options.hour_cycle, options.hour12, options.hour):
         case ("h11", _, "numeric"):
