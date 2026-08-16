@@ -40,10 +40,15 @@ def _normalize_whitespace(value: str) -> str:
         {"year": "numeric", "month": "2-digit", "day": "2-digit"},
         {"year": "numeric", "month": "long"},
         {"month": "long", "day": "numeric"},
+        {"year": "numeric", "month": "long", "day": "numeric", "weekday": "long"},
         {"hour": "2-digit", "minute": "2-digit", "second": "2-digit"},
+        {"hour": "numeric", "minute": "numeric", "day_period": "short"},
+        {"hour": "numeric", "minute": "numeric", "second": "numeric"},
+        {"hour": "numeric", "minute": "numeric", "second": "numeric", "hour12": False},
+        {"hour": "numeric", "minute": "numeric", "second": "numeric", "hour12": True},
     ],
 )
-def test_full_numeric_date(node: NodeRunner, locale: str, options: DateTimeFormatOptionsDictT):
+def test_options_against_js(node: NodeRunner, locale: str, options: DateTimeFormatOptionsDictT):
     datetime_ = dt.datetime(2026, 8, 15)
     formatter = DateTimeFormat(locale, options)
     assert (

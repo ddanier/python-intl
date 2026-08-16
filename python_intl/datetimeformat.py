@@ -3,7 +3,7 @@ from __future__ import annotations
 import dataclasses
 import datetime as dt
 from functools import cache, cached_property
-from typing import TYPE_CHECKING, Literal, overload
+from typing import TYPE_CHECKING, Literal
 
 import icu  # type: ignore[import-untyped]
 
@@ -13,6 +13,10 @@ if TYPE_CHECKING:
 
 
 if TYPE_CHECKING:
+    type LocaleMatcherT = Literal["best fit", "lookup"]
+    type Hour12T = bool | None
+    type HourCycleT = Literal["h11", "h12", "h23", "h24"] | None
+
     type EraFormatT = Literal["long", "short", "narrow"]
     type YearFormatT = Literal["numeric", "2-digit"]
     type MonthFormatT = Literal["numeric", "2-digit", "long", "short", "narrow"]
@@ -45,46 +49,14 @@ if TYPE_CHECKING:
         | TimezoneNameFormatT
     )
 
-    type EraPatternT = Literal["G", "GGGG", "GGGGG"]
-    type YearPatternT = Literal["y", "yy", "yyyy"]
-    type MonthPatternT = Literal["M", "MM", "MMM", "MMMM", "MMMMM"]
-    type WeekdayPatternT = Literal["E", "EEEE", "EEEEE"]
-    type DayPatternT = Literal["d", "dd"]
-    type DayPeriodPatternT = Literal["a", "aaaa", "aaaaa", "b", "bbbb", "bbbbb", "B", "BBBB", "BBBBB"]
-    type HourPatternT = Literal["j", "jj", "H", "h", "HH", "hh"]
-    type MinutePatternT = Literal["m", "mm"]
-    type SecondPatternT = Literal["s", "ss"]
-    type FractionSecondDigitsPatternT = Literal["S", "SS", "SSS"]
-    type TimezoneNamePatternT = Literal["z", "zzzz", "Z", "ZZZZ", "v", "vvvv"]
-    type AnyPatternT = (
-        EraPatternT
-        | YearPatternT
-        | MonthPatternT
-        | WeekdayPatternT
-        | DayPatternT
-        | DayPeriodPatternT
-        | HourPatternT
-        | MinutePatternT
-        | SecondPatternT
-        | FractionSecondDigitsPatternT
-        | TimezoneNamePatternT
-    )
-
-    type DatetimeFieldT = Literal[
-        "era",
-        "year",
-        "month",
-        "weekday",
-        "day",
-        "day_period",
-        "hour",
-        "minute",
-        "second",
-        "fraction_second_digits",
-        "time_zone_name",
-    ]
-
+    # Important: Must be the same as DateTimeFormatOptions
+    # (nothing is required, as this will be used to construct a
+    # DateTimeFormatOptions instance, so default values apply then)
     class DateTimeFormatOptionsDictT(TypedDict):
+        locale_matcher: NotRequired[LocaleMatcherT]
+        hour12: NotRequired[Hour12T]
+        hour_cycle: NotRequired[HourCycleT]
+
         era: NotRequired[EraFormatT]
         year: NotRequired[YearFormatT]
         month: NotRequired[MonthFormatT]
@@ -97,25 +69,21 @@ if TYPE_CHECKING:
         fraction_second_digits: NotRequired[FractionSecondDigitsFormatT]
         time_zone_name: NotRequired[TimezoneNameFormatT]
 
-    class OptionsToSkeletonT(TypedDict):
-        era: dict[EraFormatT, EraPatternT | tuple[EraPatternT, ...]]
-        year: dict[YearFormatT, YearPatternT | tuple[YearPatternT, ...]]
-        month: dict[MonthFormatT, MonthPatternT | tuple[MonthPatternT, ...]]
-        weekday: dict[WeekdayFormatT, WeekdayPatternT | tuple[WeekdayPatternT, ...]]
-        day: dict[DayFormatT, DayPatternT | tuple[DayPatternT, ...]]
-        day_period: dict[DayPeriodFormatT, DayPeriodPatternT | tuple[DayPeriodPatternT, ...]]
-        hour: dict[HourFormatT, HourPatternT | tuple[HourPatternT, ...]]
-        minute: dict[MinuteFormatT, MinutePatternT | tuple[MinutePatternT, ...]]
-        second: dict[SecondFormatT, SecondPatternT | tuple[SecondPatternT, ...]]
-        fraction_second_digits: dict[
-            FractionSecondDigitsFormatT,
-            FractionSecondDigitsPatternT | tuple[FractionSecondDigitsPatternT, ...],
-        ]
-        time_zone_name: dict[TimezoneNameFormatT, TimezoneNamePatternT | tuple[TimezoneNamePatternT, ...]]
+
+_TIMEZONE_NAME_JS_MAPPING: dict[str | None, str] = {
+    "short_offset": "shortOffset",
+    "long_offset": "longOffset",
+    "short_generic": "shortGeneric",
+    "long_generic": "longGeneric",
+}
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class DateTimeFormatOptions:
+    locale_matcher: LocaleMatcherT = "best fit"
+    hour12: Hour12T = None
+    hour_cycle: HourCycleT = None
+
     era: EraFormatT | None = None
     year: YearFormatT | None = None
     month: MonthFormatT | None = None
@@ -137,133 +105,128 @@ class DateTimeFormatOptions:
                 ("month", self.month),
                 ("weekday", self.weekday),
                 ("day", self.day),
-                ("day_period", self.day_period),
+                ("dayPeriod", self.day_period),
                 ("hour", self.hour),
                 ("minute", self.minute),
                 ("second", self.second),
-                ("fraction_second_digits", self.fraction_second_digits),
-                ("time_zone_name", self.time_zone_name),
+                ("fractionalSecondDigits", self.fraction_second_digits),
+                ("timeZoneName", _TIMEZONE_NAME_JS_MAPPING.get(self.time_zone_name, self.time_zone_name)),
             )
             if v is not None
         }
 
 
-OPTIONS_TO_SKELETON: OptionsToSkeletonT = {
-    "era": {"short": "G", "long": "GGGG", "narrow": "GGGGG"},
-    "year": {"numeric": ("yyyy", "y"), "2-digit": "yy"},
-    "month": {"numeric": "M", "2-digit": "MM", "short": "MMM", "long": "MMMM", "narrow": "MMMMM"},
-    "weekday": {"short": "E", "long": "EEEE", "narrow": "EEEEE"},
-    "day": {"numeric": "d", "2-digit": "dd"},
-    "day_period": {
-        "short": ("a", "b", "B"),
-        "long": ("aaaa", "bbbb", "BBBB"),
-        "narrow": ("aaaaa", "bbbbb", "BBBBB"),
-    },
-    "hour": {"numeric": ("j", "H", "h"), "2-digit": ("jj", "HH", "hh")},
-    "minute": {"numeric": "m", "2-digit": "mm"},
-    "second": {"numeric": "s", "2-digit": "ss"},
-    "fraction_second_digits": {1: "S", 2: "SS", 3: "SSS"},
-    "time_zone_name": {
-        "short": "z",
-        "long": "zzzz",
-        "short_offset": "Z",
-        "long_offset": "ZZZZ",
-        "short_generic": "v",
-        "long_generic": "vvvv",
-    },
-}
-
-
-@overload
-def _option_to_skeleton_bit(
-    field: Literal["era"],
-    format: EraFormatT,
-) -> EraPatternT | tuple[EraPatternT, ...]: ...
-@overload
-def _option_to_skeleton_bit(
-    field: Literal["year"],
-    format: YearFormatT,
-) -> YearPatternT | tuple[YearPatternT, ...]: ...
-@overload
-def _option_to_skeleton_bit(
-    field: Literal["month"],
-    format: MonthFormatT,
-) -> MonthPatternT | tuple[MonthPatternT, ...]: ...
-@overload
-def _option_to_skeleton_bit(
-    field: Literal["weekday"],
-    format: WeekdayFormatT,
-) -> WeekdayPatternT | tuple[WeekdayPatternT, ...]: ...
-@overload
-def _option_to_skeleton_bit(
-    field: Literal["day"],
-    format: DayFormatT,
-) -> DayPatternT | tuple[DayPatternT, ...]: ...
-@overload
-def _option_to_skeleton_bit(
-    field: Literal["day_period"],
-    format: DayPeriodFormatT,
-) -> DayPeriodPatternT | tuple[DayPeriodPatternT, ...]: ...
-@overload
-def _option_to_skeleton_bit(
-    field: Literal["hour"],
-    format: HourFormatT,
-) -> HourPatternT | tuple[HourPatternT, ...]: ...
-@overload
-def _option_to_skeleton_bit(
-    field: Literal["minute"],
-    format: MinuteFormatT,
-) -> MinutePatternT | tuple[MinutePatternT, ...]: ...
-@overload
-def _option_to_skeleton_bit(
-    field: Literal["second"],
-    format: SecondFormatT,
-) -> SecondPatternT | tuple[SecondPatternT, ...]: ...
-@overload
-def _option_to_skeleton_bit(
-    field: Literal["fraction_second_digits"],
-    format: FractionSecondDigitsFormatT,
-) -> FractionSecondDigitsPatternT | tuple[FractionSecondDigitsPatternT, ...]: ...
-@overload
-def _option_to_skeleton_bit(
-    field: Literal["time_zone_name"],
-    format: TimezoneNameFormatT,
-) -> TimezoneNamePatternT | tuple[TimezoneNamePatternT, ...]: ...
-def _option_to_skeleton_bit(
-    field,
-    format,
-):
-    return OPTIONS_TO_SKELETON[field][format]
-
-
 def _options_to_possible_skeletons(options: DateTimeFormatOptions) -> Iterable[str]:
-    datetime_code_bits: list[str | tuple[str, ...]] = []
+    skeleton_parts: list[str | tuple[str, ...]] = []
 
-    # For order see babel.dates.PATTERN_CHAR_ORDER
-    if options.era:
-        datetime_code_bits.append(_option_to_skeleton_bit("era", options.era))
-    if options.year:
-        datetime_code_bits.append(_option_to_skeleton_bit("year", options.year))
-    if options.month:
-        datetime_code_bits.append(_option_to_skeleton_bit("month", options.month))
-    if options.weekday:
-        datetime_code_bits.append(_option_to_skeleton_bit("weekday", options.weekday))
-    if options.day:
-        datetime_code_bits.append(_option_to_skeleton_bit("day", options.day))
-    if options.day_period:
-        datetime_code_bits.append(_option_to_skeleton_bit("day_period", options.day_period))
-    if options.hour:
-        datetime_code_bits.append(_option_to_skeleton_bit("hour", options.hour))
-    if options.minute:
-        datetime_code_bits.append(_option_to_skeleton_bit("minute", options.minute))
-    if options.second:
-        datetime_code_bits.append(_option_to_skeleton_bit("second", options.second))
+    # Note: The parts should be ordered from big to small.
+
+    match options.era:
+        case "short":
+            skeleton_parts.append("G")
+        case "long":
+            skeleton_parts.append("GGGG")
+        case "narrow":
+            skeleton_parts.append("GGGGG")
+
+    match options.year:
+        case "numeric":
+            skeleton_parts.append(("yyyy", "y"))
+        case "2-digit":
+            skeleton_parts.append("yy")
+
+    match options.month:
+        case "numeric":
+            skeleton_parts.append("M")
+        case "2-digit":
+            skeleton_parts.append("MM")
+        case "short":
+            skeleton_parts.append("MMM")
+        case "long":
+            skeleton_parts.append("MMMM")
+        case "narrow":
+            skeleton_parts.append("MMMMM")
+
+    match options.weekday:
+        case "short":
+            skeleton_parts.append("E")
+        case "long":
+            skeleton_parts.append("EEEE")
+        case "narrow":
+            skeleton_parts.append("EEEEE")
+
+    match options.day:
+        case "numeric":
+            skeleton_parts.append("d")
+        case "2-digit":
+            skeleton_parts.append("dd")
+
+    match options.day_period:
+        case "short":
+            skeleton_parts.append("b")
+        case "long":
+            skeleton_parts.append("bbbb")
+        case "narrow":
+            skeleton_parts.append("bbbbb")
+
+    match (options.hour_cycle, options.hour12, options.hour):
+        case ("h11", _, "numeric"):
+            skeleton_parts.append(("aK", "K"))
+        case ("h11", _, "2-digit"):
+            skeleton_parts.append(("aKK", "KK"))
+        case ("h12", _, "numeric"):
+            skeleton_parts.append(("ah", "h"))
+        case ("h12", _, "2-digit"):
+            skeleton_parts.append(("ahh", "hh"))
+        case ("h23", _, "numeric"):
+            skeleton_parts.append("H")
+        case ("h23", _, "2-digit"):
+            skeleton_parts.append("HH")
+        case ("h24", _, "numeric"):
+            skeleton_parts.append("k")
+        case ("h24", _, "2-digit"):
+            skeleton_parts.append("kk")
+        case (_, True, "numeric"):
+            skeleton_parts.append(("ah", "h"))
+        case (_, True, "2-digit"):
+            skeleton_parts.append(("ahh", "hh"))
+        case (_, False, "numeric"):
+            skeleton_parts.append("H")
+        case (_, False, "2-digit"):
+            skeleton_parts.append("HH")
+        case (_, _, "numeric"):
+            skeleton_parts.append("j")
+        case (_, _, "2-digit"):
+            skeleton_parts.append(("jj", "j"))
+
+    match options.minute:
+        case "numeric":
+            skeleton_parts.append("m")
+        case "2-digit":
+            skeleton_parts.append("mm")
+
+    match options.second:
+        case "numeric":
+            skeleton_parts.append("s")
+        case "2-digit":
+            skeleton_parts.append("ss")
+
     if options.fraction_second_digits:
-        datetime_code_bits.append(
-            _option_to_skeleton_bit("fraction_second_digits", options.fraction_second_digits),
-        )
-    if options.time_zone_name:
-        datetime_code_bits.append(_option_to_skeleton_bit("time_zone_name", options.time_zone_name))
+        skeleton_parts.append("S" * options.fraction_second_digits)
+
+    match options.time_zone_name:
+        case "short":
+            skeleton_parts.append("z")
+        case "long":
+            skeleton_parts.append("zzzz")
+        case "short_offset":
+            skeleton_parts.append("Z")
+        case "long_offset":
+            skeleton_parts.append("ZZZZ")
+        case "short_generic":
+            skeleton_parts.append("v")
+        case "long_generic":
+            skeleton_parts.append("vvvv")
 
     def generate_skeletons(prefix: str, remaining: list[str | tuple[str, ...]]) -> Iterable[str]:
         if not remaining:
@@ -277,7 +240,7 @@ def _options_to_possible_skeletons(options: DateTimeFormatOptions) -> Iterable[s
         else:
             yield from generate_skeletons(prefix + next_bit, remaining[1:])
 
-    yield from generate_skeletons("", datetime_code_bits)
+    yield from generate_skeletons("", skeleton_parts)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -312,13 +275,14 @@ def _options_to_format_pattern(
             )
 
     # Try to find best match
-    for skeleton in possible_skeletons:
-        pattern = generator.getBestPattern(skeleton)
-        if pattern:
-            return MatchedFormatPattern(
-                skeleton=skeleton,
-                pattern=pattern,
-            )
+    if options.locale_matcher == "best fit":
+        for skeleton in possible_skeletons:
+            pattern = generator.getBestPattern(skeleton)
+            if pattern:
+                return MatchedFormatPattern(
+                    skeleton=skeleton,
+                    pattern=pattern,
+                )
 
     raise FormatPatternNotFoundException("Didn't find pattern for desired options")
 
