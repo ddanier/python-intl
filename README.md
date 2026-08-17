@@ -2,7 +2,8 @@
 
 A small library using [PyICU](https://pypi.org/project/pyicu/) to provide a Python 
 API similar to what the [`Intl` JavaScript API](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl)
-provides.
+provides. It is not meant to fully behave the same, but instead be close enough so
+the "same" code works on JavaScript and Python, with similar results.
 
 **Status:** This is very much work in progress. Currently only `Intl.DateTimeFormat`
 exists and this also is not complete yet.
