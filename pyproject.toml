@@ -1,7 +1,7 @@
 [project]
 name = "python-intl"
 version = "0.2.0"
-description = "Add your description here"
+description = "Python implementation of the Intl JavaScript API"
 readme = "README.md"
 authors = [
     { name = "David Danier", email = "david.danier@gmail.com" }
