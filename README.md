@@ -14,10 +14,10 @@ exists and this also is not complete yet.
 
 ```python
 import datetime
-from python_intl import DateTimeFormat
+import python_intl as Intl
 
 datetime_ = datetime.datetime(2026, 8, 15)
-formatter = DateTimeFormat("de-DE", {"year": "numeric", "month": "2-digit", "day": "2-digit"})
+formatter = Intl.DateTimeFormat("de-DE", {"year": "numeric", "month": "2-digit", "day": "2-digit"})
 formatter.format(datetime_)  # Will output the German format: "15.08.2026"
 ```
 
