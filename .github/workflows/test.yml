@@ -33,7 +33,7 @@ jobs:
           node --version
           python --version
           uv run python -c "import icu; print(icu.__version__)"
-          pkg-config --libs icu-i18n
+          pkg-config --modversion icu-i18n
       - name: Test with pytest
         run: |
           uv run tox -e 'py'
