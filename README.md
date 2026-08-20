@@ -8,9 +8,38 @@ the "same" code works on JavaScript and Python, with similar results.
 **Status:** This is very much work in progress. Currently only `Intl.DateTimeFormat`
 exists and this also is not complete yet.
 
-## `Intl.DateTimeFormat`
+## General notes about the Python adaption
 
-### Example usage
+All names will be using the Python style rules. This means instead of 
+`formatToParts` a method will be called `format_to_parts`. Also a dictionary
+key like `dayPeriod` will be named `day_period`. Python uses snake case, let's
+stick to this.
+
+Instead of passing around undefined objects like in JavaScript we want to use
+well defined and typed dataclasses. This for example is true for the
+`Intl.DateTimeFormat` format options, you can use `DateTimeFormatOptions` as
+a clean representation of those. Using a dictionary (which behaves the most
+like those JavaScript objects) is still fine and will automatically converted,
+as seen in the examples here.
+
+Many objects like for example the `DateTimeFormatOptions` provide methods to
+convert their Python representation to a JavaScript compatible JSON format
+by returning a `dict` using the JavaScript naming. You can use the `to_json`
+method for this.
+
+For example:
+```python
+import python_intl as Intl
+
+Intl.DateTimeFormatOptions(time_zone_name="short_offset").to_json()
+# Will return: {'timeZoneName': 'shortOffset'}
+```
+
+## Available `Intl` classes
+
+### `Intl.DateTimeFormat`
+
+#### Example usage
 
 ```python
 import datetime
@@ -21,7 +50,7 @@ formatter = Intl.DateTimeFormat("de-DE", {"year": "numeric", "month": "2-digit",
 formatter.format(datetime_)  # Will output the German format: "15.08.2026"
 ```
 
-### Compatibility
+#### Compatibility
 
 | Method                              | Status | Python name                      |
 | ----------------------------------- | :----: | -------------------------------- |

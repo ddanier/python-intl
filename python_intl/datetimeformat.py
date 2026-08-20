@@ -301,7 +301,7 @@ class FormatPatternNotFoundException(Exception):
 
 
 @dataclasses.dataclass(kw_only=True, frozen=True, slots=True)
-class PatternPart:
+class DateTimePatternPart:
     type: PatternPartTypeT
     value: str
     _pattern: str | None = None
@@ -379,7 +379,7 @@ class DateTimeFormat:
     def format(self, datetime_: dt.datetime, /) -> str:
         return self._icu_date_format.format(datetime_)
 
-    def format_to_parts(self, datetime_: dt.datetime, /) -> Iterable[PatternPart]:
+    def format_to_parts(self, datetime_: dt.datetime, /) -> Iterable[DateTimePatternPart]:
         # Based on https://github.com/unicode-org/icu/blob/6fb634d81d10dd4667fb3fbcd1f19d9b9b926e62/icu4c/source/i18n/smpdtfmt.cpp#L1060
         pattern = self._icu_pattern
         in_quote = False
@@ -392,7 +392,7 @@ class DateTimeFormat:
             char = pattern[i]
 
             if char != prev_char and count > 0:
-                yield PatternPart(
+                yield DateTimePatternPart(
                     type=_PATTERN_SYMBOL_TO_TYPE.get(prev_char, "unknown"),
                     value=icu.SimpleDateFormat(prev_char * count, self._icu_locale).format(datetime_),  # ty: ignore[unresolved-attribute]
                     _pattern=prev_char * count,
@@ -407,7 +407,7 @@ class DateTimeFormat:
                     in_quote = not in_quote
             elif not in_quote and char in _PATTERN_SYMBOLS:
                 if literal_chars:
-                    yield PatternPart(
+                    yield DateTimePatternPart(
                         type="literal",
                         value="".join(literal_chars),
                     )
@@ -420,14 +420,14 @@ class DateTimeFormat:
             i += 1
 
         if count > 0:
-            yield PatternPart(
+            yield DateTimePatternPart(
                 type=_PATTERN_SYMBOL_TO_TYPE.get(prev_char, "unknown"),
                 value=icu.SimpleDateFormat(prev_char * count, self._icu_locale).format(datetime_),  # ty: ignore[unresolved-attribute]
                 _pattern=prev_char * count,
             )
             assert not literal_chars  # noqa: S101
         elif literal_chars:
-            yield PatternPart(
+            yield DateTimePatternPart(
                 type="literal",
                 value="".join(literal_chars),
             )
