@@ -76,8 +76,7 @@ if TYPE_CHECKING:
         fraction_second_digits: NotRequired[FractionSecondDigitsFormatT]
         time_zone_name: NotRequired[TimezoneNameFormatT]
 
-
-_PATTERN_SYMBOLS = "GyYuUrQqMLqQdDFgEecabBhHkKmsSAzZOvVxX"
+_PATTERN_SYMBOLS = "GyYuUrQqMLqQdDFgEecabBhHkKmsSAzZOvVxX"  # includes unused
 _PATTERN_SYMBOL_TO_TYPE: dict[str, PatternPartTypeT] = {
     "G": "era",
     "y": "year",
@@ -110,7 +109,12 @@ _PATTERN_SYMBOL_TO_TYPE: dict[str, PatternPartTypeT] = {
 }
 _PATTERN_QUOTE = "'"
 
-_TIMEZONE_NAME_JS_MAPPING: dict[str | None, str] = {
+_COMPONENT_TO_JSON_MAP: dict[str, str] = {
+    "day_period": "dayPeriod",
+    "fraction_second_digits": "fractionalSecondDigits",
+    "time_zone_name": "timeZoneName",
+}
+_TIMEZONE_NAME_TO_JSON_MAP: dict[str | None, str] = {
     "short_offset": "shortOffset",
     "long_offset": "longOffset",
     "short_generic": "shortGeneric",
@@ -150,7 +154,7 @@ class DateTimeFormatOptions:
                 ("minute", self.minute),
                 ("second", self.second),
                 ("fractionalSecondDigits", self.fraction_second_digits),
-                ("timeZoneName", _TIMEZONE_NAME_JS_MAPPING.get(self.time_zone_name, self.time_zone_name)),
+                ("timeZoneName", _TIMEZONE_NAME_TO_JSON_MAP.get(self.time_zone_name, self.time_zone_name)),
             )
             if v is not None
         }
@@ -304,7 +308,7 @@ class PatternPart:
 
     def to_json(self) -> dict[str, str]:
         return {
-            "type": self.type,
+            "type": _COMPONENT_TO_JSON_MAP.get(self.type, self.type),
             "value": self.value,
             # note: _pattern is internal and not available in JavaScript
         }
