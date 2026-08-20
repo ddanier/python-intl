@@ -431,3 +431,12 @@ class DateTimeFormat:
                 type="literal",
                 value="".join(literal_chars),
             )
+
+    @cached_property
+    def _icu_dateinterval_format(self) -> icu.DateIntervalFormat:  # ty: ignore[unresolved-attribute]
+        possible_skeletons = list(_options_to_possible_skeletons(self.options))
+        return icu.DateIntervalFormat.createInstance(possible_skeletons[0], self._icu_locale)  # ty: ignore[unresolved-attribute]
+
+    def format_range(self, start_datetime: dt.datetime, end_datetime: dt.datetime) -> str:
+        icu_date_interval = icu.DateInterval(start_datetime, end_datetime)  # ty: ignore[unresolved-attribute]
+        return self._icu_dateinterval_format.format(icu_date_interval)

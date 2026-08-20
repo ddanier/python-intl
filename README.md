@@ -8,6 +8,11 @@ the "same" code works on JavaScript and Python, with similar results.
 **Status:** This is very much work in progress. Currently only `Intl.DateTimeFormat`
 exists and this also is not complete yet.
 
+**Note:** There are a lot of tests running the Python implementation against the
+JavaScript one and comparing the results. In general things should be pretty
+stable there. Still there are some cases with known differences. Also note
+that results depend on the ICU version you have installed on your machine.
+
 ## General notes about the Python adaption
 
 All names will be using the Python style rules. This means instead of 
@@ -42,12 +47,14 @@ Intl.DateTimeFormatOptions(time_zone_name="short_offset").to_json()
 #### Example usage
 
 ```python
-import datetime
+import datetime as dt
 import python_intl as Intl
 
-datetime_ = datetime.datetime(2026, 8, 15)
+datetime = dt.datetime(2026, 8, 15)
 formatter = Intl.DateTimeFormat("de-DE", {"year": "numeric", "month": "2-digit", "day": "2-digit"})
-formatter.format(datetime_)  # Will output the German format: "15.08.2026"
+formatter.format(datetime)  # Will output the German format: "15.08.2026"
+datetime_till = dt.datetime(2026, 9, 7)
+formatter.format_range(datetime, datetime_till)  # Will output the German format: "15.08. – 07.09.2026"
 ```
 
 #### Compatibility
@@ -57,7 +64,7 @@ formatter.format(datetime_)  # Will output the German format: "15.08.2026"
 | `DateTimeFormat.format`             | ✅     |                                  |
 | `DateTimeFormat.formatToParts`      | ✅     | `DateTimeFormat.format_to_parts` |
 | `DateTimeFormat.supportedLocalesOf` | ❌     |                                  |
-| `DateTimeFormat.formatRange`        | ❌     |                                  |
+| `DateTimeFormat.formatRange`        | ✅     | `DateTimeFormat.format_range`    |
 | `DateTimeFormat.formatRangeToParts` | ❌     |                                  |
 | `DateTimeFormat.resolvedOptions`    | ❌     |                                  |
 
