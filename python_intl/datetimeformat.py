@@ -288,7 +288,7 @@ def _options_to_possible_skeletons(options: DateTimeFormatOptions) -> Iterable[s
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
-class MatchedFormatPattern:
+class _MatchedFormatPattern:
     skeleton: str
     pattern: str
 
@@ -318,7 +318,7 @@ class PatternPart:
 def _options_to_format_pattern(
     locale: icu.Locale,  # ty: ignore[unresolved-attribute]
     options: DateTimeFormatOptions,
-) -> MatchedFormatPattern:
+) -> _MatchedFormatPattern:
     possible_skeletons = list(_options_to_possible_skeletons(options))
 
     generator = icu.DateTimePatternGenerator.createInstance(locale)  # ty: ignore[unresolved-attribute]
@@ -327,7 +327,7 @@ def _options_to_format_pattern(
     for skeleton in possible_skeletons:
         pattern = generator.getPatternForSkeleton(skeleton)
         if pattern:
-            return MatchedFormatPattern(
+            return _MatchedFormatPattern(
                 skeleton=skeleton,
                 pattern=pattern,
             )
@@ -337,7 +337,7 @@ def _options_to_format_pattern(
         for skeleton in possible_skeletons:
             pattern = generator.getBestPattern(skeleton)
             if pattern:
-                return MatchedFormatPattern(
+                return _MatchedFormatPattern(
                     skeleton=skeleton,
                     pattern=pattern,
                 )
@@ -361,27 +361,27 @@ class DateTimeFormat:
             self.options = DateTimeFormatOptions(**options)
 
     @cached_property
-    def icu_locale(self) -> icu.Locale:  # ty: ignore[unresolved-attribute]
+    def _icu_locale(self) -> icu.Locale:  # ty: ignore[unresolved-attribute]
         return icu.Locale(self.locale)  # ty: ignore[unresolved-attribute]
 
     @cached_property
-    def matched_pattern(self) -> MatchedFormatPattern:
-        return _options_to_format_pattern(self.icu_locale, self.options)
+    def _matched_pattern(self) -> _MatchedFormatPattern:
+        return _options_to_format_pattern(self._icu_locale, self.options)
 
     @cached_property
-    def icu_pattern(self) -> str:
-        return self.matched_pattern.pattern
+    def _icu_pattern(self) -> str:
+        return self._matched_pattern.pattern
 
     @cached_property
-    def icu_date_format(self) -> icu.SimpleDateFormat:  # ty: ignore[unresolved-attribute]
-        return icu.SimpleDateFormat(self.icu_pattern, self.icu_locale)  # ty: ignore[unresolved-attribute]
+    def _icu_date_format(self) -> icu.SimpleDateFormat:  # ty: ignore[unresolved-attribute]
+        return icu.SimpleDateFormat(self._icu_pattern, self._icu_locale)  # ty: ignore[unresolved-attribute]
 
     def format(self, datetime_: dt.datetime, /) -> str:
-        return self.icu_date_format.format(datetime_)
+        return self._icu_date_format.format(datetime_)
 
     def format_to_parts(self, datetime_: dt.datetime, /) -> Iterable[PatternPart]:
         # Based on https://github.com/unicode-org/icu/blob/6fb634d81d10dd4667fb3fbcd1f19d9b9b926e62/icu4c/source/i18n/smpdtfmt.cpp#L1060
-        pattern = self.icu_pattern
+        pattern = self._icu_pattern
         in_quote = False
         prev_char = ""
         pattern_length = len(pattern)
@@ -394,7 +394,7 @@ class DateTimeFormat:
             if char != prev_char and count > 0:
                 yield PatternPart(
                     type=_PATTERN_SYMBOL_TO_TYPE.get(prev_char, "unknown"),
-                    value=icu.SimpleDateFormat(prev_char * count, self.icu_locale).format(datetime_),  # ty: ignore[unresolved-attribute]
+                    value=icu.SimpleDateFormat(prev_char * count, self._icu_locale).format(datetime_),  # ty: ignore[unresolved-attribute]
                     _pattern=prev_char * count,
                 )
                 count = 0
@@ -422,7 +422,7 @@ class DateTimeFormat:
         if count > 0:
             yield PatternPart(
                 type=_PATTERN_SYMBOL_TO_TYPE.get(prev_char, "unknown"),
-                value=icu.SimpleDateFormat(prev_char * count, self.icu_locale).format(datetime_),  # ty: ignore[unresolved-attribute]
+                value=icu.SimpleDateFormat(prev_char * count, self._icu_locale).format(datetime_),  # ty: ignore[unresolved-attribute]
                 _pattern=prev_char * count,
             )
             assert not literal_chars  # noqa: S101
