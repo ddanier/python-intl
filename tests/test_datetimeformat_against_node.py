@@ -163,5 +163,7 @@ def test_format_range_against_js(
     formatter = DateTimeFormat(locale, options)
     assert (
         _range_normalize_whitespace(formatter.format_range(start_datetime, end_datetime))
-        == _range_normalize_whitespace(node.datetimeformat_formatrange(locale, options, start_datetime, end_datetime))
+        == _range_normalize_whitespace(
+            node.datetimeformat_formatrange(locale, options, start_datetime, end_datetime),
+        )
     )
