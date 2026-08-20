@@ -16,11 +16,17 @@ if TYPE_CHECKING:
 
 
 WHITESPACE_RE = re.compile(r"\s")
+RANGE_WHITESPACE_RE = re.compile(r"\s?–\s?")  # noqa: RUF001
 
 
 def _normalize_whitespace(value: str) -> str:
     # Ensure we don't have any special whitespace like NBSP
     return WHITESPACE_RE.sub(" ", value)
+
+
+def _range_normalize_whitespace(value: str) -> str:
+    # Ensure we don't have any special whitespace like NBSP
+    return WHITESPACE_RE.sub(" ", RANGE_WHITESPACE_RE.sub(" – ", value))  # noqa: RUF001
 
 
 DATETIMES = [
@@ -156,6 +162,6 @@ def test_format_range_against_js(
     options = DateTimeFormatOptions(**options_)
     formatter = DateTimeFormat(locale, options)
     assert (
-        _normalize_whitespace(formatter.format_range(start_datetime, end_datetime))
-        == _normalize_whitespace(node.datetimeformat_formatrange(locale, options, start_datetime, end_datetime))
+        _range_normalize_whitespace(formatter.format_range(start_datetime, end_datetime))
+        == _range_normalize_whitespace(node.datetimeformat_formatrange(locale, options, start_datetime, end_datetime))
     )
