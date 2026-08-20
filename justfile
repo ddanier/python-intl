@@ -38,7 +38,9 @@ ty *args: (uv "run" "ty" "check" "python_intl" args)
 
 lint: ruff ty mypy
 
-qa: lint test-all
+qa: lint test
+
+qa-all: lint test-all
 
 release version: (uv "version" version)
     git add pyproject.toml
