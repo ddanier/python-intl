@@ -49,6 +49,13 @@ if TYPE_CHECKING:
         | TimezoneNameFormatT
     )
 
+    type PatternPartTypeT = Literal[
+        "literal", "unknown",
+        "era", "year", "month", "weekday", "day", "day_period",
+        "hour", "minute", "second", "fraction_second_digits",
+        "time_zone_name",
+    ]
+
     # Important: Must be the same as DateTimeFormatOptions
     # (nothing is required, as this will be used to construct a
     # DateTimeFormatOptions instance, so default values apply then)
@@ -70,6 +77,39 @@ if TYPE_CHECKING:
         time_zone_name: NotRequired[TimezoneNameFormatT]
 
 
+_PATTERN_SYMBOLS = "GyYuUrQqMLqQdDFgEecabBhHkKmsSAzZOvVxX"
+_PATTERN_SYMBOL_TO_TYPE: dict[str, PatternPartTypeT] = {
+    "G": "era",
+    "y": "year",
+    "Y": "year",
+    "u": "year",
+    "U": "year",
+    "r": "year",
+    "M": "month",
+    "E": "weekday",
+    "e": "weekday",
+    "c": "weekday",
+    "d": "day",
+    "a": "day_period",
+    "b": "day_period",
+    "C": "day_period",
+    "h": "hour",
+    "H": "hour",
+    "k": "hour",
+    "K": "hour",
+    "m": "minute",
+    "s": "second",
+    "S": "fraction_second_digits",
+    "z": "time_zone_name",
+    "Z": "time_zone_name",
+    "O": "time_zone_name",
+    "v": "time_zone_name",
+    "V": "time_zone_name",
+    "x": "time_zone_name",
+    "X": "time_zone_name",
+}
+_PATTERN_QUOTE = "'"
+
 _TIMEZONE_NAME_JS_MAPPING: dict[str | None, str] = {
     "short_offset": "shortOffset",
     "long_offset": "longOffset",
@@ -78,7 +118,7 @@ _TIMEZONE_NAME_JS_MAPPING: dict[str | None, str] = {
 }
 
 
-@dataclasses.dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
 class DateTimeFormatOptions:
     locale_matcher: LocaleMatcherT = "best fit"
     hour12: Hour12T = None
@@ -243,7 +283,7 @@ def _options_to_possible_skeletons(options: DateTimeFormatOptions) -> Iterable[s
     yield from generate_skeletons("", skeleton_parts)
 
 
-@dataclasses.dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
 class MatchedFormatPattern:
     skeleton: str
     pattern: str
@@ -254,6 +294,20 @@ class MatchedFormatPattern:
 
 class FormatPatternNotFoundException(Exception):
     pass
+
+
+@dataclasses.dataclass(kw_only=True, frozen=True, slots=True)
+class PatternPart:
+    type: PatternPartTypeT
+    value: str
+    _pattern: str | None = None
+
+    def to_json(self) -> dict[str, str]:
+        return {
+            "type": self.type,
+            "value": self.value,
+            # note: _pattern is internal and not available in JavaScript
+        }
 
 
 @cache
@@ -320,3 +374,56 @@ class DateTimeFormat:
 
     def format(self, datetime_: dt.datetime, /) -> str:
         return self.icu_date_format.format(datetime_)
+
+    def format_to_parts(self, datetime_: dt.datetime, /) -> Iterable[PatternPart]:
+        # Based on https://github.com/unicode-org/icu/blob/6fb634d81d10dd4667fb3fbcd1f19d9b9b926e62/icu4c/source/i18n/smpdtfmt.cpp#L1060
+        pattern = self.icu_pattern
+        in_quote = False
+        prev_char = ""
+        pattern_length = len(pattern)
+        count = 0
+        i = 0
+        literal_chars: list[str] = []
+        while i < pattern_length:
+            char = pattern[i]
+
+            if char != prev_char and count > 0:
+                yield PatternPart(
+                    type=_PATTERN_SYMBOL_TO_TYPE.get(prev_char, "unknown"),
+                    value=icu.SimpleDateFormat(prev_char * count, self.icu_locale).format(datetime_),  # ty: ignore[unresolved-attribute]
+                    _pattern=prev_char * count,
+                )
+                count = 0
+
+            if char == _PATTERN_QUOTE:
+                if (i + 1) < pattern_length and pattern[i + 1] == _PATTERN_QUOTE:
+                    literal_chars.append(_PATTERN_QUOTE)
+                    i += 1
+                else:
+                    in_quote = not in_quote
+            elif not in_quote and char in _PATTERN_SYMBOLS:
+                if literal_chars:
+                    yield PatternPart(
+                        type="literal",
+                        value="".join(literal_chars),
+                    )
+                    literal_chars = []
+                prev_char = char
+                count += 1
+            else:
+                literal_chars.append(char)
+
+            i += 1
+
+        if count > 0:
+            yield PatternPart(
+                type=_PATTERN_SYMBOL_TO_TYPE.get(prev_char, "unknown"),
+                value=icu.SimpleDateFormat(prev_char * count, self.icu_locale).format(datetime_),  # ty: ignore[unresolved-attribute]
+                _pattern=prev_char * count,
+            )
+            assert not literal_chars  # noqa: S101
+        elif literal_chars:
+            yield PatternPart(
+                type="literal",
+                value="".join(literal_chars),
+            )

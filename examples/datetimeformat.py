@@ -10,12 +10,19 @@ def print_formats(name: str, options: DateTimeFormatOptions) -> None:
     print("Selected options")  # noqa: T201
     print(options.to_json())  # noqa: T201
     print(f"Possible skeleton codes: {', '.join(list(_options_to_possible_skeletons(options)))}")  # noqa: T201
-    print("Format string and formatted date per locale")  # noqa: T201
+    print("Format string and formatted date per locale (using DateTimeFormat.format(...))")  # noqa: T201
     for locale_str in ("en", "en-GB", "sv", "de", "it", "fr", "no"):
         formatter = Intl.DateTimeFormat(locale=locale_str, options=options)
         format_pattern = formatter.matched_pattern
         formatted_datetime = formatter.format(now)
         print(f"- {locale_str}: {format_pattern} => {formatted_datetime}")  # noqa: T201
+    print("Format string parts for en-US (using DateTimeFormat.format_to_parts(...))")  # noqa: T201
+    formatter = Intl.DateTimeFormat(locale="en", options=options)
+    for part in formatter.format_to_parts(now):
+        if part.type == "literal":
+            print(f"- literal: '{part.value}'")  # noqa: T201
+        else:
+            print(f"- {part.type}: '{part.value}' (used pattern: '{part._pattern}')")  # noqa: T201
     print()  # noqa: T201
 
 
