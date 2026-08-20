@@ -21,6 +21,17 @@ formatter = Intl.DateTimeFormat("de-DE", {"year": "numeric", "month": "2-digit",
 formatter.format(datetime_)  # Will output the German format: "15.08.2026"
 ```
 
+### Compatibility
+
+| Method                              | Status | Python name                      |
+| ----------------------------------- | :----: | -------------------------------- |
+| `DateTimeFormat.format`             | ✅     |                                  |
+| `DateTimeFormat.formatToParts`      | ✅     | `DateTimeFormat.format_to_parts` |
+| `DateTimeFormat.supportedLocalesOf` | ❌     |                                  |
+| `DateTimeFormat.formatRange`        | ❌     |                                  |
+| `DateTimeFormat.formatRangeToParts` | ❌     |                                  |
+| `DateTimeFormat.resolvedOptions`    | ❌     |                                  |
+
 ## Installation
 
 Be sure to be able to install `PyICU`, see the installation docs there:
@@ -28,3 +39,6 @@ https://gitlab.pyicu.org/main/pyicu#installing-pyicu
 
 **Hint:** I mainly did run into issues with `pkg-config` not finding the ICU library,
 setting `PKG_CONFIG_PATH` accordingly helps most of the time I guess.
+
+When this is done you should be able to install `python-intl` using any package
+manager, like `pip install python-intl` or `uv add python-intl`.
