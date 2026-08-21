@@ -136,6 +136,10 @@ _TIMEZONE_NAME_TO_JSON_MAP: dict[str | None, str] = {
     "short_generic": "shortGeneric",
     "long_generic": "longGeneric",
 }
+_SOURCE_TO_JSON_MAP: dict[str, str] = {
+    "start_range": "startRange",
+    "end_range": "endRange",
+}
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
@@ -340,10 +344,7 @@ class DateTimeIntervalPatternPart:
         return {
             "type": _COMPONENT_TO_JSON_MAP.get(self.type, self.type),
             "value": self.value,
-            "source": {
-                "start_range": "startRange",
-                "end_range": "endRange",
-            }.get(self.source, self.source),
+            "source": _SOURCE_TO_JSON_MAP.get(self.source, self.source),
         }
 
 
