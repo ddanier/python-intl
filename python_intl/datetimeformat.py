@@ -13,7 +13,8 @@ if TYPE_CHECKING:
 
 
 if TYPE_CHECKING:
-    type LocaleMatcherT = Literal["best fit", "lookup"]
+    from ._types import LocaleMatcherT
+
     type Hour12T = bool | None
     type HourCycleT = Literal["h11", "h12", "h23", "h24"] | None
 
@@ -403,10 +404,12 @@ class DateTimeFormat:
     def __init__(
         self,
         locale: str,
-        options: DateTimeFormatOptions | DateTimeFormatOptionsDictT,
+        options: DateTimeFormatOptions | DateTimeFormatOptionsDictT | None = None,
     ) -> None:
         self.locale = locale
-        if isinstance(options, DateTimeFormatOptions):
+        if options is None:
+            self.options = DateTimeFormatOptions()
+        elif isinstance(options, DateTimeFormatOptions):
             self.options = options
         else:
             self.options = DateTimeFormatOptions(**options)

@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any
 import pytest
 
 if TYPE_CHECKING:
+    from python_intl.collator import CollatorOptions
     from python_intl.datetimeformat import DateTimeFormatOptions
 
 
@@ -98,6 +99,20 @@ class NodeRunner:
                     {end_datetime.microsecond},
                 );
                 console.log(JSON.stringify(formatter.formatRangeToParts(startDate, endDate)));
+            """),
+        )
+
+    def collator_compare(
+        self,
+        locale: str,
+        options: CollatorOptions,
+        string_a: str,
+        string_b: str,
+    ) -> list[dict[str, Any]]:
+        return json.loads(
+            self._run_node(f"""
+                const collator = new Intl.Collator({json.dumps(locale)}, {json.dumps(options.to_json())});
+                console.log(JSON.stringify(collator.compare({json.dumps(string_a)}, {json.dumps(string_b)})));
             """),
         )
 
