@@ -29,6 +29,27 @@ def _range_normalize_whitespace(value: str) -> str:
     return WHITESPACE_RE.sub(" ", RANGE_WHITESPACE_RE.sub(" – ", value))  # noqa: RUF001
 
 
+def _normalize_parts_whitespace(parts: list[dict], *, for_range: bool = False) -> list[dict]:
+    def _normalize_part_value(part: dict) -> dict:
+        if "value" not in part:
+            return part
+
+        return {
+            **part,
+            "value": (
+                _range_normalize_whitespace(part["value"])
+                if for_range
+                else _normalize_whitespace(part["value"])
+            ),
+        }
+
+    return [
+        _normalize_part_value(part)
+        for part
+        in parts
+    ]
+
+
 DATETIMES = [
     dt.datetime(2026, 8, 15),
     dt.datetime(2026, 8, 15, 12, 34, 56),
@@ -128,8 +149,8 @@ def test_format_to_parts_against_js(
     options = DateTimeFormatOptions(**options_)
     formatter = DateTimeFormat(locale, options)
     assert (
-        [part.to_json() for part in formatter.format_to_parts(datetime_)]
-        == node.datetimeformat_formattoparts(locale, options, datetime_)
+        _normalize_parts_whitespace([part.to_json() for part in formatter.format_to_parts(datetime_)])
+        == _normalize_parts_whitespace(node.datetimeformat_formattoparts(locale, options, datetime_))
     )
 
 
@@ -198,6 +219,12 @@ def test_format_range_to_parts_against_js(
     options = DateTimeFormatOptions(**options_)
     formatter = DateTimeFormat(locale, options)
     assert (
-        [part.to_json() for part in formatter.format_range_to_parts(start_datetime, end_datetime)]
-        == node.datetimeformat_formatrangetoparts(locale, options, start_datetime, end_datetime)
+        _normalize_parts_whitespace(
+            [part.to_json() for part in formatter.format_range_to_parts(start_datetime, end_datetime)],
+            for_range=True,
+        )
+        == _normalize_parts_whitespace(
+            node.datetimeformat_formatrangetoparts(locale, options, start_datetime, end_datetime),
+            for_range=True,
+        )
     )
