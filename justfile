@@ -26,7 +26,7 @@ update: (uv "sync" "--group" "dev")
 uv *args:
     uv {{args}}
 
-test *args: (uv "run" "pytest" "--cov=python_intl" "--cov-report" "term-missing:skip-covered" args)
+test *args: (uv "run" "pytest" "--numprocesses=logical" "--cov=python_intl" "--cov-report" "term-missing:skip-covered" args)
 
 test-all: (uv "run" "tox")
 
