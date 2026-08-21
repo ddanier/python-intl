@@ -50,23 +50,28 @@ Intl.DateTimeFormatOptions(time_zone_name="short_offset").to_json()
 import datetime as dt
 import python_intl as Intl
 
+# Format a datetime
 datetime = dt.datetime(2026, 8, 15)
 formatter = Intl.DateTimeFormat("de-DE", {"year": "numeric", "month": "2-digit", "day": "2-digit"})
-formatter.format(datetime)  # Will output the German format: "15.08.2026"
+formatter.format(datetime)
+# Result = "15.08.2026"
+
+# Format a datetime range
 datetime_till = dt.datetime(2026, 9, 7)
-formatter.format_range(datetime, datetime_till)  # Will output the German format: "15.08. – 07.09.2026"
+formatter.format_range(datetime, datetime_till)
+# Result = "15.08. – 07.09.2026"
 ```
 
 #### Compatibility
 
-| Method                              | Status | Python name                      |
-| ----------------------------------- | :----: | -------------------------------- |
-| `DateTimeFormat.format`             | ✅     |                                  |
-| `DateTimeFormat.formatToParts`      | ✅     | `DateTimeFormat.format_to_parts` |
-| `DateTimeFormat.supportedLocalesOf` | ❌     |                                  |
-| `DateTimeFormat.formatRange`        | ✅     | `DateTimeFormat.format_range`    |
-| `DateTimeFormat.formatRangeToParts` | ❌     |                                  |
-| `DateTimeFormat.resolvedOptions`    | ❌     |                                  |
+| Method                              | Status | Python name                            |
+| ----------------------------------- | :----: | -------------------------------------- |
+| `DateTimeFormat.format`             | ✅     |                                        |
+| `DateTimeFormat.formatToParts`      | ✅     | `DateTimeFormat.format_to_parts`       |
+| `DateTimeFormat.supportedLocalesOf` | ❌     |                                        |
+| `DateTimeFormat.formatRange`        | ✅     | `DateTimeFormat.format_range`          |
+| `DateTimeFormat.formatRangeToParts` | ✅     | `DateTimeFormat.format_range_to_parts` |
+| `DateTimeFormat.resolvedOptions`    | ❌     |                                        |
 
 ## Installation
 
