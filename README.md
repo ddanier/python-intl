@@ -77,7 +77,7 @@ formatter.format_range(datetime, datetime_till)
 #### Compatibility
 
 | Method             | Status | Python name |
-| ------------------ | :----: | --------- - |
+| ------------------ | :----: | ----------- |
 | `Collator.compare` | ✅     |             |
 
 **Note:** Not all options are currently supported.
