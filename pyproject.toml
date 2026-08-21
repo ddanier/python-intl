@@ -30,6 +30,7 @@ dev = [
 [tool.pytest.ini_options]
 markers = [
     "unit: mark a test as a unit test",
+    "node: mark tests jun against the node/JS implementation",
 ]
 
 [tool.ruff]

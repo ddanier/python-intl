@@ -108,6 +108,7 @@ def is_known_broken(
     "options_",
     OPTIONS,
 )
+@pytest.mark.node
 def test_format_against_js(
     node: NodeRunner,
     datetime_: dt.datetime,
@@ -137,6 +138,7 @@ def test_format_against_js(
     "options_",
     OPTIONS,
 )
+@pytest.mark.node
 def test_format_to_parts_against_js(
     node: NodeRunner,
     datetime_: dt.datetime,
@@ -170,6 +172,7 @@ def test_format_to_parts_against_js(
     "options_",
     OPTIONS,
 )
+@pytest.mark.node
 def test_format_range_against_js(
     node: NodeRunner,
     start_datetime: dt.datetime,
@@ -206,6 +209,7 @@ def test_format_range_against_js(
     "options_",
     OPTIONS,
 )
+@pytest.mark.node
 def test_format_range_to_parts_against_js(
     node: NodeRunner,
     start_datetime: dt.datetime,
