@@ -5,8 +5,7 @@ API similar to what the [`Intl` JavaScript API](https://developer.mozilla.org/en
 provides. It is not meant to fully behave the same, but instead be close enough so
 the "same" code works on JavaScript and Python, with similar results.
 
-**Status:** This is very much work in progress. Currently only `Intl.DateTimeFormat`
-exists and this also is not complete yet.
+**Status:** This is very much work in progress.
 
 **Note:** There are a lot of tests running the Python implementation against the
 JavaScript one and comparing the results. In general things should be pretty
@@ -72,6 +71,16 @@ formatter.format_range(datetime, datetime_till)
 | `DateTimeFormat.formatRange`        | ✅     | `DateTimeFormat.format_range`          |
 | `DateTimeFormat.formatRangeToParts` | ✅     | `DateTimeFormat.format_range_to_parts` |
 | `DateTimeFormat.resolvedOptions`    | ❌     |                                        |
+
+### `Intl.Collator`
+
+#### Compatibility
+
+| Method             | Status | Python name |
+| ------------------ | :----: | --------- - |
+| `Collator.compare` | ✅     |             |
+
+**Note:** Not all options are currently supported.
 
 ## Installation
 
