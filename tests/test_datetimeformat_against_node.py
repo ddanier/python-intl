@@ -167,3 +167,37 @@ def test_format_range_against_js(
             node.datetimeformat_formatrange(locale, options, start_datetime, end_datetime),
         )
     )
+
+
+@pytest.mark.parametrize(
+    "start_datetime",
+    DATETIMES,
+)
+@pytest.mark.parametrize(
+    "end_datetime",
+    DATETIMES,
+)
+@pytest.mark.parametrize(
+    "locale",
+    LOCALES,
+)
+@pytest.mark.parametrize(
+    "options_",
+    OPTIONS,
+)
+def test_format_range_to_parts_against_js(
+    node: NodeRunner,
+    start_datetime: dt.datetime,
+    end_datetime: dt.datetime,
+    locale: str,
+    options_: DateTimeFormatOptionsDictT,
+):
+    if is_known_broken(locale, options_):
+        pytest.skip()
+
+    options = DateTimeFormatOptions(**options_)
+    formatter = DateTimeFormat(locale, options)
+    assert (
+        [part.to_json() for part in formatter.format_range_to_parts(start_datetime, end_datetime)]
+        == node.datetimeformat_formatrangetoparts(locale, options, start_datetime, end_datetime)
+    )

@@ -77,6 +77,29 @@ class NodeRunner:
             console.log(formatter.formatRange(startDate, endDate));
         """)
 
+    def datetimeformat_formatrangetoparts(
+        self,
+        locale: str,
+        options: DateTimeFormatOptions,
+        start_datetime: dt.datetime,
+        end_datetime: dt.datetime,
+    ) -> list[dict[str, Any]]:
+        return json.loads(
+            self._run_node(f"""
+                const formatter = new Intl.DateTimeFormat({json.dumps(locale)}, {json.dumps(options.to_json())});
+                const startDate = new Date(
+                    {start_datetime.year}, {start_datetime.month - 1}, {start_datetime.day},
+                    {start_datetime.hour}, {start_datetime.minute}, {start_datetime.second},
+                    {start_datetime.microsecond},
+                );
+                const endDate = new Date(
+                    {end_datetime.year}, {end_datetime.month - 1}, {end_datetime.day},
+                    {end_datetime.hour}, {end_datetime.minute}, {end_datetime.second},
+                    {end_datetime.microsecond},
+                );
+                console.log(JSON.stringify(formatter.formatRangeToParts(startDate, endDate)));
+            """),
+        )
 
 
 @pytest.fixture

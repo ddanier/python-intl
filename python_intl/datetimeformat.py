@@ -107,6 +107,22 @@ _PATTERN_SYMBOL_TO_TYPE: dict[str, PatternPartTypeT] = {
     "x": "time_zone_name",
     "X": "time_zone_name",
 }
+_PATTERN_FIELD_TO_TYPE: dict[icu.UDateTimePatternField, PatternPartTypeT] = {  # ty: ignore[unresolved-attribute]
+    icu.DateFormat.ERA_FIELD: "era",  # ty: ignore[unresolved-attribute]
+    icu.DateFormat.YEAR_FIELD: "year",  # ty: ignore[unresolved-attribute]
+    icu.DateFormat.MONTH_FIELD: "month",  # ty: ignore[unresolved-attribute]
+    icu.DateFormat.DAY_OF_WEEK_FIELD: "weekday",  # ty: ignore[unresolved-attribute]
+    icu.DateFormat.DATE_FIELD: "day",  # ty: ignore[unresolved-attribute]
+    icu.DateFormat.AM_PM_FIELD: "day_period",  # ty: ignore[unresolved-attribute]
+    icu.DateFormat.HOUR0_FIELD: "hour",  # ty: ignore[unresolved-attribute]
+    icu.DateFormat.HOUR1_FIELD: "hour",  # ty: ignore[unresolved-attribute]
+    icu.DateFormat.HOUR_OF_DAY0_FIELD: "hour",  # ty: ignore[unresolved-attribute]
+    icu.DateFormat.HOUR_OF_DAY1_FIELD: "hour",  # ty: ignore[unresolved-attribute]
+    icu.DateFormat.MINUTE_FIELD: "minute",  # ty: ignore[unresolved-attribute]
+    icu.DateFormat.SECOND_FIELD: "second",  # ty: ignore[unresolved-attribute]
+    icu.DateFormat.MILLISECOND_FIELD: "fraction_second_digits",  # ty: ignore[unresolved-attribute]
+    icu.DateFormat.TIMEZONE_FIELD: "time_zone_name",  # ty: ignore[unresolved-attribute]
+}
 _PATTERN_QUOTE = "'"
 
 _COMPONENT_TO_JSON_MAP: dict[str, str] = {
@@ -314,6 +330,23 @@ class DateTimePatternPart:
         }
 
 
+@dataclasses.dataclass(kw_only=True, frozen=True, slots=True)
+class DateTimeIntervalPatternPart:
+    type: PatternPartTypeT
+    value: str
+    source: Literal["start_range", "end_range", "shared"]
+
+    def to_json(self) -> dict[str, str]:
+        return {
+            "type": _COMPONENT_TO_JSON_MAP.get(self.type, self.type),
+            "value": self.value,
+            "source": {
+                "start_range": "startRange",
+                "end_range": "endRange",
+            }.get(self.source, self.source),
+        }
+
+
 @cache
 def _options_to_format_pattern(
     locale: icu.Locale,  # ty: ignore[unresolved-attribute]
@@ -343,6 +376,23 @@ def _options_to_format_pattern(
                 )
 
     raise FormatPatternNotFoundException("Didn't find pattern for desired options")
+
+
+@dataclasses.dataclass(kw_only=True, frozen=True, slots=True)
+class _PartSpan:
+    start: int
+    end: int
+
+    @classmethod
+    def empty(cls) -> _PartSpan:
+        return cls(start=0, end=0)
+
+    @classmethod
+    def from_constrained_fieldposition(cls, position: icu.ConstrainedFieldPosition) -> _PartSpan:  # ty: ignore[unresolved-attribute]
+        return cls(start=position.getStart(), end=position.getLimit())
+
+    def __contains__(self, inner: _PartSpan) -> bool:
+        return inner.start >= self.start and inner.end <= self.end
 
 
 class DateTimeFormat:
@@ -437,6 +487,66 @@ class DateTimeFormat:
         possible_skeletons = list(_options_to_possible_skeletons(self.options))
         return icu.DateIntervalFormat.createInstance(possible_skeletons[0], self._icu_locale)  # ty: ignore[unresolved-attribute]
 
-    def format_range(self, start_datetime: dt.datetime, end_datetime: dt.datetime) -> str:
+    def format_range(
+        self,
+        start_datetime: dt.datetime,
+        end_datetime: dt.datetime,
+    ) -> str:
         icu_date_interval = icu.DateInterval(start_datetime, end_datetime)  # ty: ignore[unresolved-attribute]
         return self._icu_dateinterval_format.format(icu_date_interval)
+
+    def format_range_to_parts(
+        self,
+        start_datetime: dt.datetime,
+        end_datetime: dt.datetime,
+    ) -> Iterable[DateTimeIntervalPatternPart]:
+        icu_date_interval = icu.DateInterval(start_datetime, end_datetime)  # ty: ignore[unresolved-attribute]
+        formatted = self._icu_dateinterval_format.formatToValue(icu_date_interval)
+
+        # Find spans of both datetimes (used to determine which parts have which source)
+        span_start = _PartSpan.empty()
+        span_end = _PartSpan.empty()
+        for part in formatted:
+            if part.getCategory() == icu.UFieldCategory.DATE_INTERVAL_SPAN:  # ty: ignore[unresolved-attribute]
+                match part.getField():
+                    case 0:
+                        span_start = _PartSpan.from_constrained_fieldposition(part)
+                    case 1:
+                        span_end = _PartSpan.from_constrained_fieldposition(part)
+
+        def source_of(span: _PartSpan) -> Literal["start_range", "end_range", "shared"]:
+            if span in span_start:
+                return "start_range"
+            elif span in span_end:
+                return "end_range"
+            else:
+                return "shared"
+
+        # Break result string into parts
+        result_string = str(formatted)
+        last_end = 0
+        for part in formatted:
+            span = _PartSpan.from_constrained_fieldposition(part)
+            if span.start > last_end:
+                yield DateTimeIntervalPatternPart(
+                    type="literal",
+                    value=result_string[last_end:span.start],
+                    source=source_of(_PartSpan(start=last_end, end=span.start)),
+                )
+
+            if part.getCategory() == icu.UFieldCategory.DATE:  # ty: ignore[unresolved-attribute]
+                yield DateTimeIntervalPatternPart(
+                    type=_PATTERN_FIELD_TO_TYPE.get(part.getField(), "unknown"),
+                    value=result_string[span.start:span.end],
+                    source=source_of(span),
+                )
+
+            last_end = span.end
+
+        # Ensure we didn't miss anything at the end
+        if last_end < len(result_string):
+            yield DateTimeIntervalPatternPart(
+                type="literal",
+                value=result_string[last_end:],
+                source=source_of(_PartSpan(start=last_end, end=len(result_string))),
+            )
