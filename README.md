@@ -82,6 +82,12 @@ formatter.format_range(datetime, datetime_till)
 
 **Note:** Not all options are currently supported.
 
+#### Additional methods
+
+* `Collator.sorted`: Sowrk loke `sorted`, but uses the collator for comparison. If you want
+  to sort complex datastructures you can provide a `key` attribute (like with `sorted`) to
+  get a comparable string value (for example attribute).
+
 ## Installation
 
 Be sure to be able to install `PyICU`, see the installation docs there:
