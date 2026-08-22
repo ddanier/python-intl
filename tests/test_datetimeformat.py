@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 @pytest.mark.parametrize(
-    ("options", "expected"),
+    ("options_", "expected"),
     [
         (
             {"year": "numeric", "month": "2-digit", "day": "2-digit"},
