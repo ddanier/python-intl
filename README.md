@@ -74,6 +74,20 @@ formatter.format_range(datetime, datetime_till)
 
 ### `Intl.Collator`
 
+#### Example usage
+
+```python
+import python_intl as Intl
+
+collator = Intl.Collator("de-DE", {"numeric": True})
+collator.compare("10", "9")
+# Result = 1, which means 9 comes before 10
+
+# You can also use sorted, although this is not available in JavaScript
+collator.sorted(["10", "9"])
+# Result = ['9', '10']
+```
+
 #### Compatibility
 
 | Method             | Status | Python name |
