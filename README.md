@@ -98,9 +98,9 @@ collator.sorted(["10", "9"])
 
 #### Additional methods
 
-* `Collator.sorted`: Sowrk loke `sorted`, but uses the collator for comparison. If you want
-  to sort complex datastructures you can provide a `key` attribute (like with `sorted`) to
-  get a comparable string value (for example attribute).
+* `Collator.sorted`: Somewhat like `sorted`, but uses the collator for comparison. If you want
+  to sort complex datastructures you can provide a `key` parameter (like with `sorted`) to
+  get a comparable string value (for example by returning an attribute).
 
 ## Installation
 
