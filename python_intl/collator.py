@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import dataclasses
+import functools
+from collections.abc import Callable, Iterable
 from functools import cached_property
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Literal, overload
 
 import icu  # type: ignore[import-untyped]
 
@@ -124,3 +126,17 @@ class Collator:
 
     def compare(self, string_a: str, string_b: str) -> ComparisonResultT:
         return _COLLATOR_RESULT_TO_RESULT[self._icu_collator.compare(string_a, string_b)]
+
+    @overload
+    def sorted(self, items: Iterable[str], /, key: None = None) -> Iterable[str]: ...
+    @overload
+    def sorted[T](self, items: Iterable[T], /, key: Callable[[T], str]) -> Iterable[T]: ...
+    def sorted(self, items, /, key = None):
+        return sorted(
+            items,
+            key=functools.cmp_to_key(
+                (lambda a, b: self.compare(key(a), key(b)))
+                if key
+                else self.compare,
+            ),
+        )
