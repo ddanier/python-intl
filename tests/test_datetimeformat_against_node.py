@@ -9,45 +9,12 @@ import pytest
 from python_intl import DateTimeFormat
 from python_intl.datetimeformat import DateTimeFormatOptions
 
+from .utils import normalize_parts_whitespace, normalize_range_whitespace, normalize_whitespace
+
 if TYPE_CHECKING:
     from python_intl.datetimeformat import DateTimeFormatOptionsDictT
 
     from .conftest import NodeRunner
-
-
-WHITESPACE_RE = re.compile(r"\s")
-RANGE_WHITESPACE_RE = re.compile(r"\s?–\s?")  # noqa: RUF001
-
-
-def _normalize_whitespace(value: str) -> str:
-    # Ensure we don't have any special whitespace like NBSP
-    return WHITESPACE_RE.sub(" ", value)
-
-
-def _range_normalize_whitespace(value: str) -> str:
-    # Ensure we don't have any special whitespace like NBSP
-    return WHITESPACE_RE.sub(" ", RANGE_WHITESPACE_RE.sub(" – ", value))  # noqa: RUF001
-
-
-def _normalize_parts_whitespace(parts: list[dict], *, for_range: bool = False) -> list[dict]:
-    def _normalize_part_value(part: dict) -> dict:
-        if "value" not in part:
-            return part
-
-        return {
-            **part,
-            "value": (
-                _range_normalize_whitespace(part["value"])
-                if for_range
-                else _normalize_whitespace(part["value"])
-            ),
-        }
-
-    return [
-        _normalize_part_value(part)
-        for part
-        in parts
-    ]
 
 
 DATETIMES = [
@@ -121,8 +88,8 @@ def test_format_against_js(
     options = DateTimeFormatOptions(**options_)
     formatter = DateTimeFormat(locale, options)
     assert (
-        _normalize_whitespace(formatter.format(datetime_))
-        == _normalize_whitespace(node.datetimeformat_format(locale, options, datetime_))
+        normalize_whitespace(formatter.format(datetime_))
+        == normalize_whitespace(node.datetimeformat_format(locale, options, datetime_))
     )
 
 
@@ -151,8 +118,8 @@ def test_format_to_parts_against_js(
     options = DateTimeFormatOptions(**options_)
     formatter = DateTimeFormat(locale, options)
     assert (
-        _normalize_parts_whitespace([part.to_json() for part in formatter.format_to_parts(datetime_)])
-        == _normalize_parts_whitespace(node.datetimeformat_formattoparts(locale, options, datetime_))
+        normalize_parts_whitespace([part.to_json() for part in formatter.format_to_parts(datetime_)])
+        == normalize_parts_whitespace(node.datetimeformat_formattoparts(locale, options, datetime_))
     )
 
 
@@ -186,8 +153,8 @@ def test_format_range_against_js(
     options = DateTimeFormatOptions(**options_)
     formatter = DateTimeFormat(locale, options)
     assert (
-        _range_normalize_whitespace(formatter.format_range(start_datetime, end_datetime))
-        == _range_normalize_whitespace(
+        normalize_range_whitespace(formatter.format_range(start_datetime, end_datetime))
+        == normalize_range_whitespace(
             node.datetimeformat_formatrange(locale, options, start_datetime, end_datetime),
         )
     )
@@ -223,11 +190,11 @@ def test_format_range_to_parts_against_js(
     options = DateTimeFormatOptions(**options_)
     formatter = DateTimeFormat(locale, options)
     assert (
-        _normalize_parts_whitespace(
+        normalize_parts_whitespace(
             [part.to_json() for part in formatter.format_range_to_parts(start_datetime, end_datetime)],
             for_range=True,
         )
-        == _normalize_parts_whitespace(
+        == normalize_parts_whitespace(
             node.datetimeformat_formatrangetoparts(locale, options, start_datetime, end_datetime),
             for_range=True,
         )

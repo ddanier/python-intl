@@ -52,7 +52,7 @@ OPTIONS = [
     OPTIONS,
 )
 @pytest.mark.node
-def test_format_against_js(
+def test_compare_against_js(
     node: NodeRunner,
     string_a: str,
     string_b: str,
