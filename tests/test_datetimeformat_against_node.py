@@ -58,10 +58,9 @@ def is_known_broken(
     # Sadly some formats don't match, skip for now
     return bool(
         (options_.get("year") and options_.get("weekday") and not IS_ICU_78_OR_NEWER)
-        or (options_.get("day_period") and locale in ("en", "en-US"))
+        or (options_.get("hour12") is False and locale in ("en", "en-US"))
         or (options_.get("hour") == "2-digit" and locale in ("en", "en-US"))
-        or (options_.get("hour12") is False and locale in ("en", "en-US") and not IS_ICU_78_OR_NEWER)
-        or (options_.get("hour12") is True and not IS_ICU_78_OR_NEWER),
+        or (options_.get("day_period") and locale in ("en", "en-US") and not IS_ICU_78_OR_NEWER),
     )
 
 
@@ -119,6 +118,7 @@ def test_format_to_parts_against_js(
 
     options = DateTimeFormatOptions(**options_)
     formatter = DateTimeFormat(locale, options)
+
     assert (
         normalize_parts_whitespace([part.to_json() for part in formatter.format_to_parts(datetime_)])
         == normalize_parts_whitespace(node.datetimeformat_formattoparts(locale, options, datetime_))
