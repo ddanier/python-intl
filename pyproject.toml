@@ -32,7 +32,7 @@ dev = [
 ]
 
 [tool.uv.sources]
-pyicu = { git = "https://gitlab.pyicu.org/main/pyicu.git", rev = "0cf41ac262ad486228d9695f3b425008b3cfe9ef" }
+pyicu = { git = "https://gitlab.pyicu.org/main/pyicu.git", rev = "baa0c86bf90fa13f3615000b7c6c18491a624d8d" }
 
 [tool.pytest.ini_options]
 markers = [
