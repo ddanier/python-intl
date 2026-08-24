@@ -31,6 +31,9 @@ dev = [
     "ty>=0.0.72",
 ]
 
+[tool.uv.sources]
+pyicu = { git = "https://gitlab.pyicu.org/main/pyicu.git", rev = "0cf41ac262ad486228d9695f3b425008b3cfe9ef" }
+
 [tool.pytest.ini_options]
 markers = [
     "unit: mark a test as a unit test",
