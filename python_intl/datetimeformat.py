@@ -92,6 +92,7 @@ _PATTERN_SYMBOL_TO_TYPE: dict[str, PatternPartTypeT] = {
     "d": "day",
     "a": "day_period",
     "b": "day_period",
+    "B": "day_period",
     "C": "day_period",
     "h": "hour",
     "H": "hour",
@@ -115,6 +116,12 @@ _PATTERN_FIELD_TO_TYPE: dict[icu.UDateTimePatternField, PatternPartTypeT] = {  #
     icu.DateFormat.DAY_OF_WEEK_FIELD: "weekday",  # ty: ignore[unresolved-attribute]
     icu.DateFormat.DATE_FIELD: "day",  # ty: ignore[unresolved-attribute]
     icu.DateFormat.AM_PM_FIELD: "day_period",  # ty: ignore[unresolved-attribute]
+    # TODO(ddanier): Use this instead once PyICU has those values in the enum:
+    # https://gitlab.pyicu.org/main/pyicu/-/work_items/180
+    # icu.DateFormat.AM_PM_MIDNIGHT_NOON_FIELD: "day_period",
+    # icu.DateFormat.FLEXIBLE_DAY_PERIOD_FIELD: "day_period",
+    35: "day_period",
+    36: "day_period",
     icu.DateFormat.HOUR0_FIELD: "hour",  # ty: ignore[unresolved-attribute]
     icu.DateFormat.HOUR1_FIELD: "hour",  # ty: ignore[unresolved-attribute]
     icu.DateFormat.HOUR_OF_DAY0_FIELD: "hour",  # ty: ignore[unresolved-attribute]
@@ -165,6 +172,10 @@ class DateTimeFormatOptions:
         return {
             k: v
             for k, v in (
+                ("localeMatcher", self.locale_matcher),
+                ("hour12", self.hour12),
+                ("hourCycle", self.hour_cycle),
+
                 ("era", self.era),
                 ("year", self.year),
                 ("month", self.month),

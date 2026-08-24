@@ -19,15 +19,15 @@ if TYPE_CHECKING:
     [
         (
             {"year": "numeric", "month": "2-digit", "day": "2-digit"},
-            {"year": "numeric", "month": "2-digit", "day": "2-digit"},
+            {"year": "numeric", "month": "2-digit", "day": "2-digit", "localeMatcher": "best fit"},
         ),
         (
             {"hour": "numeric", "minute": "numeric", "day_period": "short"},
-            {"hour": "numeric", "minute": "numeric", "dayPeriod": "short"},
+            {"hour": "numeric", "minute": "numeric", "dayPeriod": "short", "localeMatcher": "best fit"},
         ),
         (
             {"hour": "numeric", "minute": "numeric", "time_zone_name": "short_offset"},
-            {"hour": "numeric", "minute": "numeric", "timeZoneName": "shortOffset"},
+            {"hour": "numeric", "minute": "numeric", "timeZoneName": "shortOffset", "localeMatcher": "best fit"},
         ),
     ],
 )

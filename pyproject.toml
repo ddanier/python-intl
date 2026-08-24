@@ -41,7 +41,7 @@ output-format = "grouped"
 
 [tool.ruff.lint]
 select = ["F","E","W","C","I","N","UP","ANN","S","B","A","COM","C4","T20","PT","ARG","TD","RUF"]
-ignore = ["A001","A002","A003","ANN401","C901","N8","B008","F405","F821"]
+ignore = ["A001","A002","A003","ANN401","C901","N8","B008","F405","F821","TD003"]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
