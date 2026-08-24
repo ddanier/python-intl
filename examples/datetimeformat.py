@@ -1,7 +1,7 @@
 import datetime as dt
 
 import python_intl as Intl
-from python_intl.datetimeformat import DateTimeFormatOptions, _options_to_possible_skeletons
+from python_intl.datetimeformat import DateTimeFormatOptions
 
 
 def print_formats(name: str, options: DateTimeFormatOptions) -> None:
@@ -9,7 +9,6 @@ def print_formats(name: str, options: DateTimeFormatOptions) -> None:
     print(name)  # noqa: T201
     print("Selected options")  # noqa: T201
     print(options.to_json())  # noqa: T201
-    print(f"Possible skeleton codes: {', '.join(list(_options_to_possible_skeletons(options)))}")  # noqa: T201
     print("Format string and formatted date per locale (using DateTimeFormat.format(...))")  # noqa: T201
     for locale_str in ("en", "en-GB", "sv", "de", "it", "fr", "no"):
         formatter = Intl.DateTimeFormat(locale=locale_str, options=options)
