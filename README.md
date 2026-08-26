@@ -49,7 +49,7 @@ Intl.DateTimeFormatOptions(time_zone_name="short_offset").to_json()
 import datetime as dt
 import python_intl as Intl
 
-locale = Intl.DateTimeFormat("de-DE")
+locale = Intl.Locale("de-DE")
 ```
 
 #### Compatibility
