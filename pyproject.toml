@@ -36,7 +36,6 @@ markers = [
 
 [tool.ruff]
 line-length = 115
-target-version = "py312"
 output-format = "grouped"
 
 [tool.ruff.lint]
@@ -51,6 +50,9 @@ ignore = ["A001","A002","A003","ANN401","C901","N8","B008","F405","F821","TD003"
 [tool.ruff.lint.isort]
 combine-as-imports = true
 force-wrap-aliases = true
+
+[tool.pyright]
+pythonVersion = "3.12"
 
 [build-system]
 requires = ["uv_build>=0.12.3,<0.13.0"]

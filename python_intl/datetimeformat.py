@@ -11,46 +11,24 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from typing import NotRequired, TypedDict
 
-
-if TYPE_CHECKING:
-    from ._types import LocaleMatcherT
-
-    type Hour12T = bool | None
-    type HourCycleT = Literal["h11", "h12", "h23", "h24"] | None
-
-    type EraFormatT = Literal["long", "short", "narrow"]
-    type YearFormatT = Literal["numeric", "2-digit"]
-    type MonthFormatT = Literal["numeric", "2-digit", "long", "short", "narrow"]
-    type WeekdayFormatT = Literal["long", "short", "narrow"]
-    type DayFormatT = Literal["numeric", "2-digit"]
-    type DayPeriodFormatT = Literal["long", "short", "narrow"]
-    type HourFormatT = Literal["numeric", "2-digit"]
-    type MinuteFormatT = Literal["numeric", "2-digit"]
-    type SecondFormatT = Literal["numeric", "2-digit"]
-    type FractionSecondDigitsFormatT = Literal[1, 2, 3]
-    type TimezoneNameFormatT = Literal[
-        "short",
-        "long",
-        "short_offset",
-        "long_offset",
-        "short_generic",
-        "long_generic",
-    ]
-    type AnyFormatT = (
-        EraFormatT
-        | YearFormatT
-        | MonthFormatT
-        | WeekdayFormatT
-        | DayFormatT
-        | DayPeriodFormatT
-        | HourFormatT
-        | MinuteFormatT
-        | SecondFormatT
-        | FractionSecondDigitsFormatT
-        | TimezoneNameFormatT
+    from ._types import (
+        DayFormatT,
+        DayPeriodFormatT,
+        EraFormatT,
+        FractionSecondDigitsFormatT,
+        Hour12T,
+        HourCycleT,
+        HourFormatT,
+        LocaleMatcherT,
+        MinuteFormatT,
+        MonthFormatT,
+        SecondFormatT,
+        TimezoneNameFormatT,
+        WeekdayFormatT,
+        YearFormatT,
     )
 
-    type PatternPartTypeT = Literal[
+    type DatetimePatternPartTypeT = Literal[
         "literal", "unknown",
         "era", "year", "month", "weekday", "day", "day_period",
         "hour", "minute", "second", "fraction_second_digits",
@@ -78,7 +56,7 @@ if TYPE_CHECKING:
         time_zone_name: NotRequired[TimezoneNameFormatT]
 
 _PATTERN_SYMBOLS = "GyYuUrQqMLqQdDFgEecabBhHkKmsSAzZOvVxX"  # includes unused
-_PATTERN_SYMBOL_TO_TYPE: dict[str, PatternPartTypeT] = {
+_PATTERN_SYMBOL_TO_TYPE: dict[str, DatetimePatternPartTypeT] = {
     "G": "era",
     "y": "year",
     "Y": "year",
@@ -109,7 +87,7 @@ _PATTERN_SYMBOL_TO_TYPE: dict[str, PatternPartTypeT] = {
     "x": "time_zone_name",
     "X": "time_zone_name",
 }
-_PATTERN_FIELD_TO_TYPE: dict[icu.UDateTimePatternField, PatternPartTypeT] = {  # ty: ignore[unresolved-attribute]
+_PATTERN_FIELD_TO_TYPE: dict[icu.UDateTimePatternField, DatetimePatternPartTypeT] = {  # ty: ignore[unresolved-attribute]
     icu.DateFormat.ERA_FIELD: "era",  # ty: ignore[unresolved-attribute]
     icu.DateFormat.YEAR_FIELD: "year",  # ty: ignore[unresolved-attribute]
     icu.DateFormat.MONTH_FIELD: "month",  # ty: ignore[unresolved-attribute]
@@ -153,8 +131,8 @@ _SOURCE_TO_JSON_MAP: dict[str, str] = {
 @dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
 class DateTimeFormatOptions:
     locale_matcher: LocaleMatcherT = "best fit"
-    hour12: Hour12T = None
-    hour_cycle: HourCycleT = None
+    hour12: Hour12T | None = None
+    hour_cycle: HourCycleT | None = None
 
     era: EraFormatT | None = None
     year: YearFormatT | None = None
@@ -334,7 +312,7 @@ class FormatPatternNotFoundException(Exception):
 
 @dataclasses.dataclass(kw_only=True, frozen=True, slots=True)
 class DateTimePatternPart:
-    type: PatternPartTypeT
+    type: DatetimePatternPartTypeT
     value: str
     _pattern: str | None = None
 
@@ -348,7 +326,7 @@ class DateTimePatternPart:
 
 @dataclasses.dataclass(kw_only=True, frozen=True, slots=True)
 class DateTimeIntervalPatternPart:
-    type: PatternPartTypeT
+    type: DatetimePatternPartTypeT
     value: str
     source: Literal["start_range", "end_range", "shared"]
 

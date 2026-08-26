@@ -4,23 +4,14 @@ import dataclasses
 import functools
 from collections.abc import Callable, Iterable
 from functools import cached_property
-from typing import TYPE_CHECKING, Literal, overload
+from typing import TYPE_CHECKING, overload
 
 import icu  # type: ignore[import-untyped]
 
 if TYPE_CHECKING:
     from typing import NotRequired, TypedDict
 
-
-if TYPE_CHECKING:
-    from ._types import LocaleMatcherT
-
-    # type UsageT = Literal["sort", "search"]
-    # type CollationT = Literal["emoji", "pinyin", "stroke"]
-    type CaseFirstT = Literal["upper", "lower", "false"]
-    type SensitivityT = Literal["base", "accent", "case", "variant"]
-
-    type ComparisonResultT = Literal[-1, 0, 1]
+    from ._types import CaseFirstT, ComparisonResultT, LocaleMatcherT, SensitivityT
 
     # Important: Must be the same as CollatorOptions
     # (nothing is required, as this will be used to construct a
