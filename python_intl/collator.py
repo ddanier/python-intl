@@ -8,6 +8,8 @@ from typing import TYPE_CHECKING, overload
 
 import icu  # type: ignore[import-untyped]
 
+from .locale import Locale
+
 if TYPE_CHECKING:
     from typing import NotRequired, TypedDict
 
@@ -60,15 +62,18 @@ _COLLATOR_RESULT_TO_RESULT: dict[icu.UCollationResult, ComparisonResultT] = {  #
 
 
 class Collator:
-    locale: str
+    locale: Locale
     options: CollatorOptions
 
     def __init__(
         self,
-        locale: str,
+        locale: Locale | str,
         options: CollatorOptions | CollatorOptionsDictT | None = None,
     ) -> None:
-        self.locale = locale
+        if isinstance(locale, Locale):
+            self.locale = locale
+        else:
+            self.locale = Locale(locale)
         if options is None:
             self.options = CollatorOptions()
         elif isinstance(options, CollatorOptions):
@@ -77,12 +82,8 @@ class Collator:
             self.options = CollatorOptions(**options)
 
     @cached_property
-    def _icu_locale(self) -> icu.Locale:  # ty: ignore[unresolved-attribute]
-        return icu.Locale(self.locale)  # ty: ignore[unresolved-attribute]
-
-    @cached_property
     def _icu_collator(self) -> icu.Collator:  # ty: ignore[unresolved-attribute]
-        collator = icu.Collator.createInstance(self._icu_locale)  # ty: ignore[unresolved-attribute]
+        collator = icu.Collator.createInstance(self.locale._icu_locale)  # ty: ignore[unresolved-attribute]
 
         if self.options.numeric:
             collator.setAttribute(icu.UCollAttribute.NUMERIC_COLLATION, icu.UCollAttributeValue.ON)  # ty: ignore[unresolved-attribute]
@@ -91,7 +92,7 @@ class Collator:
             self.options.ignore_punctuation
             or (
                 self.options.ignore_punctuation is None
-                and self._icu_locale.getLanguage() == "th"
+                and self.locale._icu_locale.getLanguage() == "th"
             )
         ):
             collator.setAttribute(icu.UCollAttribute.ALTERNATE_HANDLING, icu.UCollAttributeValue.SHIFTED)  # ty: ignore[unresolved-attribute]

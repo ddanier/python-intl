@@ -7,6 +7,8 @@ from typing import TYPE_CHECKING, Literal
 
 import icu  # type: ignore[import-untyped]
 
+from .locale import Locale
+
 if TYPE_CHECKING:
     from collections.abc import Iterable
     from typing import NotRequired, TypedDict
@@ -387,15 +389,18 @@ class _PartSpan:
 
 
 class DateTimeFormat:
-    locale: str
+    locale: Locale
     options: DateTimeFormatOptions
 
     def __init__(
         self,
-        locale: str,
+        locale: Locale | str,
         options: DateTimeFormatOptions | DateTimeFormatOptionsDictT | None = None,
     ) -> None:
-        self.locale = locale
+        if isinstance(locale, Locale):
+            self.locale = locale
+        else:
+            self.locale = Locale(locale)
         if options is None:
             self.options = DateTimeFormatOptions()
         elif isinstance(options, DateTimeFormatOptions):
@@ -404,12 +409,8 @@ class DateTimeFormat:
             self.options = DateTimeFormatOptions(**options)
 
     @cached_property
-    def _icu_locale(self) -> icu.Locale:  # ty: ignore[unresolved-attribute]
-        return icu.Locale(self.locale)  # ty: ignore[unresolved-attribute]
-
-    @cached_property
     def _matched_pattern(self) -> _MatchedFormatPattern:
-        return _options_to_format_pattern(self._icu_locale, self.options)
+        return _options_to_format_pattern(self.locale._icu_locale, self.options)
 
     @cached_property
     def _icu_pattern(self) -> str:
@@ -417,7 +418,7 @@ class DateTimeFormat:
 
     @cached_property
     def _icu_date_format(self) -> icu.SimpleDateFormat:  # ty: ignore[unresolved-attribute]
-        return icu.SimpleDateFormat(self._icu_pattern, self._icu_locale)  # ty: ignore[unresolved-attribute]
+        return icu.SimpleDateFormat(self._icu_pattern, self.locale._icu_locale)  # ty: ignore[unresolved-attribute]
 
     def format(self, datetime_: dt.datetime, /) -> str:
         return self._icu_date_format.format(datetime_)
@@ -437,7 +438,7 @@ class DateTimeFormat:
             if char != prev_char and count > 0:
                 yield DateTimePatternPart(
                     type=_PATTERN_SYMBOL_TO_TYPE.get(prev_char, "unknown"),
-                    value=icu.SimpleDateFormat(prev_char * count, self._icu_locale).format(datetime_),  # ty: ignore[unresolved-attribute]
+                    value=icu.SimpleDateFormat(prev_char * count, self.locale._icu_locale).format(datetime_),  # ty: ignore[unresolved-attribute]
                     _pattern=prev_char * count,
                 )
                 count = 0
@@ -465,7 +466,7 @@ class DateTimeFormat:
         if count > 0:
             yield DateTimePatternPart(
                 type=_PATTERN_SYMBOL_TO_TYPE.get(prev_char, "unknown"),
-                value=icu.SimpleDateFormat(prev_char * count, self._icu_locale).format(datetime_),  # ty: ignore[unresolved-attribute]
+                value=icu.SimpleDateFormat(prev_char * count, self.locale._icu_locale).format(datetime_),  # ty: ignore[unresolved-attribute]
                 _pattern=prev_char * count,
             )
             assert not literal_chars  # noqa: S101
@@ -478,7 +479,7 @@ class DateTimeFormat:
     @cached_property
     def _icu_dateinterval_format(self) -> icu.DateIntervalFormat:  # ty: ignore[unresolved-attribute]
         possible_skeletons = list(_options_to_possible_skeletons(self.options))
-        return icu.DateIntervalFormat.createInstance(possible_skeletons[0], self._icu_locale)  # ty: ignore[unresolved-attribute]
+        return icu.DateIntervalFormat.createInstance(possible_skeletons[0], self.locale._icu_locale)  # ty: ignore[unresolved-attribute]
 
     def format_range(
         self,
