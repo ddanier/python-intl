@@ -41,6 +41,23 @@ Intl.DateTimeFormatOptions(time_zone_name="short_offset").to_json()
 
 ## Available `Intl` classes
 
+### `Intl.Locale`
+
+#### Example usage
+
+```python
+import datetime as dt
+import python_intl as Intl
+
+locale = Intl.DateTimeFormat("de-DE")
+```
+
+#### Compatibility
+
+`Locale` currently does not support any methods or options. It is mainly there to
+allow using the locale class instead of a string with the other classes. There will
+be more later.
+
 ### `Intl.DateTimeFormat`
 
 #### Example usage
