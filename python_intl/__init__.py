@@ -7,5 +7,5 @@ from .datetimeformat import (
     DateTimeFormatOptions as DateTimeFormatOptions,
     DateTimeIntervalPatternPart as DateTimeIntervalPatternPart,
     DateTimePatternPart as DateTimePatternPart,
-    FormatPatternNotFoundException as FormatPatternNotFoundException,
+    FormatPatternNotFoundError as FormatPatternNotFoundError,
 )

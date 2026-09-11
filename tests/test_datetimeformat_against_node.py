@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import datetime as dt
-import re
 from typing import TYPE_CHECKING
 
 import pytest
@@ -52,15 +51,12 @@ def is_known_broken(
     options_: DateTimeFormatOptionsDictT,
 ) -> bool:
     # Sadly some formats don't match, skip for now
-    if (
+    return bool(
         (options_.get("year") and options_.get("weekday"))
         or (options_.get("day_period") and locale in ("en", "en-US"))
         or (options_.get("hour12") is False and locale in ("en", "en-US"))
-        or (options_.get("hour12") is True)
-    ):
-        return True
-
-    return False
+        or (options_.get("hour12") is True),
+    )
 
 
 @pytest.mark.parametrize(

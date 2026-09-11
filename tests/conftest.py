@@ -118,5 +118,5 @@ class NodeRunner:
 
 
 @pytest.fixture
-def node():
+def node() -> NodeRunner:
     return NodeRunner()

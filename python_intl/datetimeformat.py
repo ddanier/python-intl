@@ -308,7 +308,7 @@ class _MatchedFormatPattern:
         return self.pattern
 
 
-class FormatPatternNotFoundException(Exception):
+class FormatPatternNotFoundError(Exception):
     pass
 
 
@@ -368,7 +368,7 @@ def _options_to_format_pattern(
                     pattern=pattern,
                 )
 
-    raise FormatPatternNotFoundException("Didn't find pattern for desired options")
+    raise FormatPatternNotFoundError("Didn't find pattern for desired options")
 
 
 @dataclasses.dataclass(kw_only=True, frozen=True, slots=True)

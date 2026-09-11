@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import datetime as dt
-import re
 from typing import TYPE_CHECKING
 
 import pytest
@@ -12,7 +10,6 @@ from python_intl.collator import CollatorOptions
 if TYPE_CHECKING:
     from python_intl.collator import CollatorOptionsDictT
 
-    from .conftest import NodeRunner
 
 
 # Note: We are not testing compare directly, as we can only test tiny bits of what you
