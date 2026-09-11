@@ -5,7 +5,7 @@ from python_intl.datetimeformat import DateTimeFormatOptions, _options_to_possib
 
 
 def print_formats(name: str, options: DateTimeFormatOptions) -> None:
-    now = dt.datetime.now()
+    now = dt.datetime.now(tz=dt.UTC)
     print(name)  # noqa: T201
     print("Selected options")  # noqa: T201
     print(options.to_json())  # noqa: T201
@@ -13,7 +13,7 @@ def print_formats(name: str, options: DateTimeFormatOptions) -> None:
     print("Format string and formatted date per locale (using DateTimeFormat.format(...))")  # noqa: T201
     for locale_str in ("en", "en-GB", "sv", "de", "it", "fr", "no"):
         formatter = Intl.DateTimeFormat(locale=locale_str, options=options)
-        format_pattern = formatter.matched_pattern
+        format_pattern = formatter._matched_pattern
         formatted_datetime = formatter.format(now)
         print(f"- {locale_str}: {format_pattern} => {formatted_datetime}")  # noqa: T201
     print("Format string parts for en-US (using DateTimeFormat.format_to_parts(...))")  # noqa: T201

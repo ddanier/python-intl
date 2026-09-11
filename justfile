@@ -30,11 +30,11 @@ test *args: (uv "run" "pytest" "--numprocesses=logical" "--cov=python_intl" "--c
 
 test-all: (uv "run" "tox")
 
-ruff *args: (uv "run" "ruff" "check" "python_intl" "tests" args)
+ruff *args: (uv "run" "ruff" "check" "python_intl" "tests" "examples" args)
 
-mypy *args: (uv "run" "mypy" "python_intl" args)
+mypy *args: (uv "run" "mypy" "python_intl" "examples"  args)
 
-ty *args: (uv "run" "ty" "check" "python_intl" args)
+ty *args: (uv "run" "ty" "check" "python_intl" "examples"  args)
 
 lint: ruff ty mypy
 

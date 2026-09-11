@@ -19,6 +19,6 @@ jobs:
         run: uv sync --all-extras --dev
       - name: Lint with ruff & pyright
         run: |
-          uv run ruff check python_intl tests
-          uv run mypy python_intl
-          uv run ty check python_intl
+          uv run ruff check python_intl tests examples
+          uv run mypy python_intl examples
+          uv run ty check python_intl examples

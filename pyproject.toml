@@ -80,6 +80,9 @@ select = [
     "UP",    # pyupgrade
     "W",     # pycodestyle warnings
 ]
+ignore = [
+    "N812", # Allow using "import python_intl as Intl"
+]
 
 [tool.ruff.lint.per-file-ignores]
 "test_*.py" = [
