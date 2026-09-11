@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import dataclasses
 import functools
-from collections.abc import Callable, Iterable
 from functools import cached_property
 from typing import TYPE_CHECKING, overload
 
@@ -11,6 +10,7 @@ import icu  # type: ignore[import-untyped]
 from .locale import Locale
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
     from typing import NotRequired, TypedDict
 
     from ._types import CaseFirstT, ComparisonResultT, LocaleMatcherT, SensitivityT

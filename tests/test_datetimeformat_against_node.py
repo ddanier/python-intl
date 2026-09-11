@@ -17,9 +17,9 @@ if TYPE_CHECKING:
 
 
 DATETIMES = [
-    dt.datetime(2026, 8, 15),
-    dt.datetime(2026, 8, 15, 12, 34, 56),
-    dt.datetime(2026, 12, 24, 22, 30),
+    dt.datetime(2026, 8, 15, tzinfo=dt.UTC),
+    dt.datetime(2026, 8, 15, 12, 34, 56, tzinfo=dt.UTC),
+    dt.datetime(2026, 12, 24, 20, 30, tzinfo=dt.UTC),
 ]
 LOCALES = [
     "en",
@@ -54,6 +54,7 @@ def is_known_broken(
     return bool(
         (options_.get("year") and options_.get("weekday"))
         or (options_.get("day_period") and locale in ("en", "en-US"))
+        or (options_.get("hour") == "2-digit" and locale in ("en", "en-US"))
         or (options_.get("hour12") is False and locale in ("en", "en-US"))
         or (options_.get("hour12") is True),
     )

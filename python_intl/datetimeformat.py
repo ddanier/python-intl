@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import dataclasses
-import datetime as dt
 from functools import cache, cached_property
 from typing import TYPE_CHECKING, Literal
 
@@ -10,6 +9,7 @@ import icu  # type: ignore[import-untyped]
 from .locale import Locale
 
 if TYPE_CHECKING:
+    import datetime as dt
     from collections.abc import Iterable
     from typing import NotRequired, TypedDict
 
@@ -172,7 +172,7 @@ class DateTimeFormatOptions:
         }
 
 
-def _options_to_possible_skeletons(options: DateTimeFormatOptions) -> Iterable[str]:
+def _options_to_possible_skeletons(options: DateTimeFormatOptions) -> Iterable[str]:  # noqa: PLR0912, PLR0915
     skeleton_parts: list[str | tuple[str, ...]] = []
 
     # Note: The parts should be ordered from big to small.
@@ -368,7 +368,8 @@ def _options_to_format_pattern(
                     pattern=pattern,
                 )
 
-    raise FormatPatternNotFoundError("Didn't find pattern for desired options")
+    error = "Didn't find pattern for desired options"
+    raise FormatPatternNotFoundError(error)
 
 
 @dataclasses.dataclass(kw_only=True, frozen=True, slots=True)
