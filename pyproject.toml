@@ -18,11 +18,14 @@ Repository = "https://github.com/ddanier/python-intl"
 
 [dependency-groups]
 dev = [
+    "basedpyright>=1.40.1",
     "mypy>=2.3.1",
+    "pylsp-mypy>=0.8.0",
     "pyright>=1.1.411",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
     "pytest-xdist>=3.8.0",
+    "python-lsp-server>=1.15.0",
     "ruff>=0.16.3",
     "tox>=4.60.0",
     "ty>=0.0.72",
