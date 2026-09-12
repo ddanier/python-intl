@@ -98,9 +98,26 @@ ignore = [
 combine-as-imports = true
 force-wrap-aliases = true
 
+[tool.ty.analysis]
+replace-imports-with-any = ["icu.**"]
+
+[[tool.mypy.overrides]]
+module = ["icu.*"]
+ignore_missing_imports = true
+
 [tool.basedpyright]
 pythonVersion = "3.12"
 reportAny = false
+reportMatchNotExhaustive = false
+reportUnknownLambdaType = false
+reportPrivateUsage = false
+# The following are only necessary cause of untyped icu library
+allowedUntypedLibraries = ["icu"]
+reportAttributeAccessIssue = false
+reportUnknownVariableType = false
+reportUnknownMemberType = false
+reportUnknownParameterType = false
+reportUnknownArgumentType = false
 
 [build-system]
 requires = ["uv_build>=0.12.3,<0.13.0"]

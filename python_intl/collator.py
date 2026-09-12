@@ -5,7 +5,7 @@ import functools
 from functools import cached_property
 from typing import TYPE_CHECKING, overload
 
-import icu  # type: ignore[import-untyped]
+import icu
 
 from .locale import Locale
 
@@ -54,10 +54,10 @@ class CollatorOptions:
         }
 
 
-_COLLATOR_RESULT_TO_RESULT: dict[icu.UCollationResult, ComparisonResultT] = {  # ty: ignore[unresolved-attribute]
-    icu.UCollationResult.LESS: -1,  # ty: ignore[unresolved-attribute]
-    icu.UCollationResult.EQUAL: 0,  # ty: ignore[unresolved-attribute]
-    icu.UCollationResult.GREATER: 1,  # ty: ignore[unresolved-attribute]
+_COLLATOR_RESULT_TO_RESULT: dict[icu.UCollationResult, ComparisonResultT] = {
+    icu.UCollationResult.LESS: -1,
+    icu.UCollationResult.EQUAL: 0,
+    icu.UCollationResult.GREATER: 1,
 }
 
 
@@ -82,11 +82,11 @@ class Collator:
             self.options = CollatorOptions(**options)
 
     @cached_property
-    def _icu_collator(self) -> icu.Collator:  # ty: ignore[unresolved-attribute]
-        collator = icu.Collator.createInstance(self.locale._icu_locale)  # ty: ignore[unresolved-attribute]
+    def _icu_collator(self) -> icu.Collator:
+        collator = icu.Collator.createInstance(self.locale._icu_locale)
 
         if self.options.numeric:
-            collator.setAttribute(icu.UCollAttribute.NUMERIC_COLLATION, icu.UCollAttributeValue.ON)  # ty: ignore[unresolved-attribute]
+            collator.setAttribute(icu.UCollAttribute.NUMERIC_COLLATION, icu.UCollAttributeValue.ON)
 
         if (
             self.options.ignore_punctuation
@@ -95,24 +95,24 @@ class Collator:
                 and self.locale._icu_locale.getLanguage() == "th"
             )
         ):
-            collator.setAttribute(icu.UCollAttribute.ALTERNATE_HANDLING, icu.UCollAttributeValue.SHIFTED)  # ty: ignore[unresolved-attribute]
+            collator.setAttribute(icu.UCollAttribute.ALTERNATE_HANDLING, icu.UCollAttributeValue.SHIFTED)
 
         match self.options.case_first:
             case "upper":
-                collator.setAttribute(icu.UCollAttribute.CASE_FIRST, icu.UCollAttributeValue.UPPER_FIRST)  # ty: ignore[unresolved-attribute]
+                collator.setAttribute(icu.UCollAttribute.CASE_FIRST, icu.UCollAttributeValue.UPPER_FIRST)
             case "lower":
-                collator.setAttribute(icu.UCollAttribute.CASE_FIRST, icu.UCollAttributeValue.LOWER_FIRST)  # ty: ignore[unresolved-attribute]
+                collator.setAttribute(icu.UCollAttribute.CASE_FIRST, icu.UCollAttributeValue.LOWER_FIRST)
 
-        collator.setAttribute(icu.UCollAttribute.NORMALIZATION_MODE, icu.UCollAttributeValue.ON)  # ty: ignore[unresolved-attribute]
+        collator.setAttribute(icu.UCollAttribute.NORMALIZATION_MODE, icu.UCollAttributeValue.ON)
         match self.options.sensitivity:
             case "base":
-                collator.setAttribute(icu.UCollAttribute.STRENGTH, icu.UCollAttributeValue.PRIMARY)  # ty: ignore[unresolved-attribute]
+                collator.setAttribute(icu.UCollAttribute.STRENGTH, icu.UCollAttributeValue.PRIMARY)
             case "accent":
-                collator.setAttribute(icu.UCollAttribute.STRENGTH, icu.UCollAttributeValue.SECONDARY)  # ty: ignore[unresolved-attribute]
+                collator.setAttribute(icu.UCollAttribute.STRENGTH, icu.UCollAttributeValue.SECONDARY)
             case "case":
-                collator.setAttribute(icu.UCollAttribute.STRENGTH, icu.UCollAttributeValue.TERTIARY)  # ty: ignore[unresolved-attribute]
+                collator.setAttribute(icu.UCollAttribute.STRENGTH, icu.UCollAttributeValue.TERTIARY)
             case "variant":
-                collator.setAttribute(icu.UCollAttribute.STRENGTH, icu.UCollAttributeValue.QUATERNARY)  # ty: ignore[unresolved-attribute]
+                collator.setAttribute(icu.UCollAttribute.STRENGTH, icu.UCollAttributeValue.QUATERNARY)
 
         return collator
 
@@ -123,7 +123,7 @@ class Collator:
     def sorted(self, items: Iterable[str], /, key: None = None) -> Iterable[str]: ...
     @overload
     def sorted[T](self, items: Iterable[T], /, key: Callable[[T], str]) -> Iterable[T]: ...
-    def sorted(self, items, /, key = None):
+    def sorted(self, items, /, key = None):  # pyright: ignore[reportInconsistentOverload]
         return sorted(
             items,
             key=functools.cmp_to_key(

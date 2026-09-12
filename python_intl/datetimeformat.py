@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import dataclasses
 from functools import cache, cached_property
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Literal, override
 
-import icu  # type: ignore[import-untyped]
+import icu
 
 from .locale import Locale
 
@@ -89,27 +89,27 @@ _PATTERN_SYMBOL_TO_TYPE: dict[str, DatetimePatternPartTypeT] = {
     "x": "time_zone_name",
     "X": "time_zone_name",
 }
-_PATTERN_FIELD_TO_TYPE: dict[icu.UDateTimePatternField, DatetimePatternPartTypeT] = {  # ty: ignore[unresolved-attribute]
-    icu.DateFormat.ERA_FIELD: "era",  # ty: ignore[unresolved-attribute]
-    icu.DateFormat.YEAR_FIELD: "year",  # ty: ignore[unresolved-attribute]
-    icu.DateFormat.MONTH_FIELD: "month",  # ty: ignore[unresolved-attribute]
-    icu.DateFormat.DAY_OF_WEEK_FIELD: "weekday",  # ty: ignore[unresolved-attribute]
-    icu.DateFormat.DATE_FIELD: "day",  # ty: ignore[unresolved-attribute]
-    icu.DateFormat.AM_PM_FIELD: "day_period",  # ty: ignore[unresolved-attribute]
+_PATTERN_FIELD_TO_TYPE: dict[icu.UDateTimePatternField, DatetimePatternPartTypeT] = {
+    icu.DateFormat.ERA_FIELD: "era",
+    icu.DateFormat.YEAR_FIELD: "year",
+    icu.DateFormat.MONTH_FIELD: "month",
+    icu.DateFormat.DAY_OF_WEEK_FIELD: "weekday",
+    icu.DateFormat.DATE_FIELD: "day",
+    icu.DateFormat.AM_PM_FIELD: "day_period",
     # TODO(ddanier): Use this instead once PyICU has those values in the enum:
     # https://gitlab.pyicu.org/main/pyicu/-/work_items/180
     # icu.DateFormat.AM_PM_MIDNIGHT_NOON_FIELD: "day_period",
     # icu.DateFormat.FLEXIBLE_DAY_PERIOD_FIELD: "day_period",
     35: "day_period",
     36: "day_period",
-    icu.DateFormat.HOUR0_FIELD: "hour",  # ty: ignore[unresolved-attribute]
-    icu.DateFormat.HOUR1_FIELD: "hour",  # ty: ignore[unresolved-attribute]
-    icu.DateFormat.HOUR_OF_DAY0_FIELD: "hour",  # ty: ignore[unresolved-attribute]
-    icu.DateFormat.HOUR_OF_DAY1_FIELD: "hour",  # ty: ignore[unresolved-attribute]
-    icu.DateFormat.MINUTE_FIELD: "minute",  # ty: ignore[unresolved-attribute]
-    icu.DateFormat.SECOND_FIELD: "second",  # ty: ignore[unresolved-attribute]
-    icu.DateFormat.MILLISECOND_FIELD: "fraction_second_digits",  # ty: ignore[unresolved-attribute]
-    icu.DateFormat.TIMEZONE_FIELD: "time_zone_name",  # ty: ignore[unresolved-attribute]
+    icu.DateFormat.HOUR0_FIELD: "hour",
+    icu.DateFormat.HOUR1_FIELD: "hour",
+    icu.DateFormat.HOUR_OF_DAY0_FIELD: "hour",
+    icu.DateFormat.HOUR_OF_DAY1_FIELD: "hour",
+    icu.DateFormat.MINUTE_FIELD: "minute",
+    icu.DateFormat.SECOND_FIELD: "second",
+    icu.DateFormat.MILLISECOND_FIELD: "fraction_second_digits",
+    icu.DateFormat.TIMEZONE_FIELD: "time_zone_name",
 }
 _PATTERN_QUOTE = "'"
 
@@ -304,6 +304,7 @@ class _MatchedFormatPattern:
     skeleton: str
     pattern: str
 
+    @override
     def __str__(self) -> str:
         return self.pattern
 
@@ -342,12 +343,12 @@ class DateTimeIntervalPatternPart:
 
 @cache
 def _options_to_format_pattern(
-    locale: icu.Locale,  # ty: ignore[unresolved-attribute]
+    locale: icu.Locale,
     options: DateTimeFormatOptions,
 ) -> _MatchedFormatPattern:
     possible_skeletons = list(_options_to_possible_skeletons(options))
 
-    generator = icu.DateTimePatternGenerator.createInstance(locale)  # ty: ignore[unresolved-attribute]
+    generator = icu.DateTimePatternGenerator.createInstance(locale)
 
     # Try a perfect match
     for skeleton in possible_skeletons:
@@ -382,7 +383,7 @@ class _PartSpan:
         return cls(start=0, end=0)
 
     @classmethod
-    def from_constrained_fieldposition(cls, position: icu.ConstrainedFieldPosition) -> _PartSpan:  # ty: ignore[unresolved-attribute]
+    def from_constrained_fieldposition(cls, position: icu.ConstrainedFieldPosition) -> _PartSpan:
         return cls(start=position.getStart(), end=position.getLimit())
 
     def __contains__(self, inner: _PartSpan) -> bool:
@@ -418,8 +419,8 @@ class DateTimeFormat:
         return self._matched_pattern.pattern
 
     @cached_property
-    def _icu_date_format(self) -> icu.SimpleDateFormat:  # ty: ignore[unresolved-attribute]
-        return icu.SimpleDateFormat(self._icu_pattern, self.locale._icu_locale)  # ty: ignore[unresolved-attribute]
+    def _icu_date_format(self) -> icu.SimpleDateFormat:
+        return icu.SimpleDateFormat(self._icu_pattern, self.locale._icu_locale)
 
     def format(self, datetime_: dt.datetime, /) -> str:
         return self._icu_date_format.format(datetime_)
@@ -439,7 +440,7 @@ class DateTimeFormat:
             if char != prev_char and count > 0:
                 yield DateTimePatternPart(
                     type=_PATTERN_SYMBOL_TO_TYPE.get(prev_char, "unknown"),
-                    value=icu.SimpleDateFormat(prev_char * count, self.locale._icu_locale).format(datetime_),  # ty: ignore[unresolved-attribute]
+                    value=icu.SimpleDateFormat(prev_char * count, self.locale._icu_locale).format(datetime_),
                     _pattern=prev_char * count,
                 )
                 count = 0
@@ -467,7 +468,7 @@ class DateTimeFormat:
         if count > 0:
             yield DateTimePatternPart(
                 type=_PATTERN_SYMBOL_TO_TYPE.get(prev_char, "unknown"),
-                value=icu.SimpleDateFormat(prev_char * count, self.locale._icu_locale).format(datetime_),  # ty: ignore[unresolved-attribute]
+                value=icu.SimpleDateFormat(prev_char * count, self.locale._icu_locale).format(datetime_),
                 _pattern=prev_char * count,
             )
             assert not literal_chars  # noqa: S101
@@ -478,16 +479,16 @@ class DateTimeFormat:
             )
 
     @cached_property
-    def _icu_dateinterval_format(self) -> icu.DateIntervalFormat:  # ty: ignore[unresolved-attribute]
+    def _icu_dateinterval_format(self) -> icu.DateIntervalFormat:
         possible_skeletons = list(_options_to_possible_skeletons(self.options))
-        return icu.DateIntervalFormat.createInstance(possible_skeletons[0], self.locale._icu_locale)  # ty: ignore[unresolved-attribute]
+        return icu.DateIntervalFormat.createInstance(possible_skeletons[0], self.locale._icu_locale)
 
     def format_range(
         self,
         start_datetime: dt.datetime,
         end_datetime: dt.datetime,
     ) -> str:
-        icu_date_interval = icu.DateInterval(start_datetime, end_datetime)  # ty: ignore[unresolved-attribute]
+        icu_date_interval = icu.DateInterval(start_datetime, end_datetime)
         return self._icu_dateinterval_format.format(icu_date_interval)
 
     def format_range_to_parts(
@@ -495,14 +496,14 @@ class DateTimeFormat:
         start_datetime: dt.datetime,
         end_datetime: dt.datetime,
     ) -> Iterable[DateTimeIntervalPatternPart]:
-        icu_date_interval = icu.DateInterval(start_datetime, end_datetime)  # ty: ignore[unresolved-attribute]
+        icu_date_interval = icu.DateInterval(start_datetime, end_datetime)
         formatted = self._icu_dateinterval_format.formatToValue(icu_date_interval)
 
         # Find spans of both datetimes (used to determine which parts have which source)
         span_start = _PartSpan.empty()
         span_end = _PartSpan.empty()
         for part in formatted:
-            if part.getCategory() == icu.UFieldCategory.DATE_INTERVAL_SPAN:  # ty: ignore[unresolved-attribute]
+            if part.getCategory() == icu.UFieldCategory.DATE_INTERVAL_SPAN:
                 match part.getField():
                     case 0:
                         span_start = _PartSpan.from_constrained_fieldposition(part)
@@ -529,7 +530,7 @@ class DateTimeFormat:
                     source=source_of(_PartSpan(start=last_end, end=span.start)),
                 )
 
-            if part.getCategory() == icu.UFieldCategory.DATE:  # ty: ignore[unresolved-attribute]
+            if part.getCategory() == icu.UFieldCategory.DATE:
                 yield DateTimeIntervalPatternPart(
                     type=_PATTERN_FIELD_TO_TYPE.get(part.getField(), "unknown"),
                     value=result_string[span.start:span.end],

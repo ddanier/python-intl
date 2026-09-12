@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from functools import cached_property
 
-import icu  # type: ignore[import-untyped]
+import icu
 
 
 class Locale:
@@ -12,5 +12,5 @@ class Locale:
         self.tag = tag
 
     @cached_property
-    def _icu_locale(self) -> icu.Locale:  # ty: ignore[unresolved-attribute]
-        return icu.Locale(self.tag)  # ty: ignore[unresolved-attribute]
+    def _icu_locale(self) -> icu.Locale:
+        return icu.Locale(self.tag)

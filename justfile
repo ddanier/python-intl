@@ -36,7 +36,9 @@ mypy *args: (uv "run" "mypy" "python_intl" "examples"  args)
 
 ty *args: (uv "run" "ty" "check" "python_intl" "examples"  args)
 
-lint: ruff ty mypy
+basedpyright *args: (uv "run" "basedpyright" "python_intl" "examples"  args)
+
+lint: ruff ty mypy basedpyright
 
 qa: lint test
 
