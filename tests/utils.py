@@ -14,8 +14,8 @@ def normalize_range_whitespace(value: str) -> str:
     return WHITESPACE_RE.sub(" ", RANGE_WHITESPACE_RE.sub(" – ", value))  # noqa: RUF001
 
 
-def normalize_parts_whitespace(parts: list[dict], *, for_range: bool = False) -> list[dict]:
-    def _normalize_part_value(part: dict) -> dict:
+def normalize_parts_whitespace(parts: list[dict[str, str]], *, for_range: bool = False) -> list[dict[str, str]]:
+    def _normalize_part_value(part: dict[str, str]) -> dict[str, str]:
         if "value" not in part:
             return part
 

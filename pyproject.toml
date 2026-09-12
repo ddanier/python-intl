@@ -89,13 +89,18 @@ ignore = [
     "S101",   # Allow usage of assert in tests
     "ANN201", # Don't require to define return types in tests
 ]
+"conftest.py" = [
+    "S101",   # Allow usage of assert in tests
+    "ANN201", # Don't require to define return types in tests
+]
 
 [tool.ruff.lint.isort]
 combine-as-imports = true
 force-wrap-aliases = true
 
-[tool.pyright]
+[tool.basedpyright]
 pythonVersion = "3.12"
+reportAny = false
 
 [build-system]
 requires = ["uv_build>=0.12.3,<0.13.0"]
