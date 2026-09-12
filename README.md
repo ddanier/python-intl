@@ -125,7 +125,8 @@ Be sure to be able to install `PyICU`, see the installation docs there:
 https://gitlab.pyicu.org/main/pyicu#installing-pyicu
 
 **Hint:** I mainly did run into issues with `pkg-config` not finding the ICU library,
-setting `PKG_CONFIG_PATH` accordingly helps most of the time I guess.
+setting `PKG_CONFIG_PATH` accordingly helps most of the time I guess. See [`.envrc`](.envrc)
+for how to set this up correctly on `nix` based systems.
 
 When this is done you should be able to install `python-intl` using any package
 manager, like `pip install python-intl` or `uv add python-intl`.
