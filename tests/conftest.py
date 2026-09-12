@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import decimal
 import json
 import subprocess
 from pathlib import Path
@@ -12,6 +13,7 @@ if TYPE_CHECKING:
 
     from python_intl.collator import CollatorOptions
     from python_intl.datetimeformat import DateTimeFormatOptions
+    from python_intl.numberformat import NumberFormatOptions, NumberT
 
 
 class NodeRunner:
@@ -24,6 +26,22 @@ class NodeRunner:
     def _run_node(self, eval_str: str) -> str:
         node_result = subprocess.run([self.node_executable, "-e", eval_str], capture_output=True, check=True)  # noqa: S603
         return node_result.stdout.decode().strip()
+
+    def numberformat_format(
+        self,
+        locale: str,
+        options: NumberFormatOptions,
+        value: NumberT,
+    ) -> str:
+        result = json.loads(
+            self._run_node(f"""
+                const formatter = new Intl.NumberFormat({json.dumps(locale)}, {json.dumps(options.to_json())});
+                const value = {str(value) if isinstance(value, decimal.Decimal) else json.dumps(value)};
+                console.log(JSON.stringify(formatter.format(value)));
+            """),
+        )
+        assert isinstance(result, str)
+        return result
 
     def datetimeformat_format(
         self,

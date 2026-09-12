@@ -9,3 +9,8 @@ from .datetimeformat import (
     DateTimePatternPart as DateTimePatternPart,
     FormatPatternNotFoundError as FormatPatternNotFoundError,
 )
+from .numberformat import (
+    InvalidNumberFormatOptionError as InvalidNumberFormatOptionError,
+    NumberFormat as NumberFormat,
+    NumberFormatOptions as NumberFormatOptions,
+)
