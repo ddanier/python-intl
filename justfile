@@ -32,13 +32,15 @@ test-all: (uv "run" "tox")
 
 ruff *args: (uv "run" "ruff" "check" "python_intl" "tests" "examples" args)
 
-mypy *args: (uv "run" "mypy" "python_intl" "examples"  args)
+mypy *args: (uv "run" "mypy" "python_intl" "examples" args)
 
-ty *args: (uv "run" "ty" "check" "python_intl" "examples"  args)
+ty *args: (uv "run" "ty" "check" "python_intl" "examples" args)
 
-basedpyright *args: (uv "run" "basedpyright" "python_intl" "examples"  args)
+basedpyright *args: (uv "run" "basedpyright" "python_intl" "examples" args)
 
-lint: ruff ty mypy basedpyright
+prek: (uv "run" "prek" "run" "--all-files")
+
+lint: ruff ty mypy basedpyright prek
 
 qa: lint test
 
