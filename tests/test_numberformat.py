@@ -6,7 +6,7 @@ import pytest
 
 from python_intl import NumberFormat, NumberFormatOptions
 
-from .utils import normalize_whitespace
+from .utils import normalize_number_range_whitespace, normalize_whitespace
 
 if TYPE_CHECKING:
     from python_intl.numberformat import NumberFormatOptionsDictT
@@ -107,11 +107,11 @@ def test_currency_format(locale: str, options_: NumberFormatOptionsDictT, expect
         ("en-US", "1,234.567\u20139,876.54321 L"),
         ("en-GB", "1,234.567\u20139,876.54321 l"),
         ("fr-FR", "1 234,567\u20139 876,54321 l"),
-        ("it-IT", "1234,567-9876,54321 l"),
+        ("it-IT", "1234,567\u20139876,54321 l"),
         ("sv-SE", "1 234,567\u20139 876,54321 l"),
     ],
 )
 def test_unit_format_range(locale: str, expected: str):
     options = NumberFormatOptions(style="unit", unit="liter")
     formatter = NumberFormat(locale, options)
-    assert normalize_whitespace(formatter.format_range(1234.567, 9876.54321)) == expected
+    assert normalize_number_range_whitespace(formatter.format_range(1234.567, 9876.54321)) == expected

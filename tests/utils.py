@@ -15,7 +15,7 @@ def normalize_datetime_range_whitespace(
     *,
     for_node: bool = False,
 ) -> str:
-    # Ensure we don't have any special whitespace like NBSP
+    # Ensure we don't have any special whitespace like NBSP and range char is fixed
     return WHITESPACE_RE.sub(
         " ",
         DATETIME_RANGE_WHITESPACE_RE.sub(
@@ -30,11 +30,11 @@ def normalize_number_range_whitespace(
     *,
     for_node: bool = False,
 ) -> str:
-    # Ensure we don't have any special whitespace like NBSP
+    # Ensure we don't have any special whitespace like NBSP and range char is fixed
     return WHITESPACE_RE.sub(
         " ",
         NUMBER_RANGE_WHITESPACE_RE.sub(
-            " - " if for_node else " \u2013 ",
+            "-" if for_node else "\u2013",
             value,
         ),
     )
