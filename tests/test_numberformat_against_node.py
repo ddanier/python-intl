@@ -35,6 +35,12 @@ VALUES: list[NumberT] = [
     123.1,
     decimal.Decimal("123.456"),
 ]
+RANGES: list[tuple[NumberT, NumberT]] = [
+    (123, 456),
+    (123456, 456789000),
+    (123.0, 456.789),
+    (decimal.Decimal("123.456"), decimal.Decimal("987.654")),
+]
 UNITS = [
     "celsius",
     "liter",
@@ -137,6 +143,42 @@ def test_unit_format(
     assert (
         normalize_whitespace(formatter.format(value))
         == normalize_whitespace(node.numberformat_format(locale, options, value))
+    )
+
+
+@pytest.mark.parametrize(
+    "locale",
+    LOCALES,
+)
+@pytest.mark.parametrize(
+    "range",
+    RANGES,
+)
+@pytest.mark.parametrize(
+    "unit",
+    UNITS,
+)
+@pytest.mark.parametrize(
+    "unit_options",
+    UNIT_OPTIONS,
+)
+def test_unit_format_range(
+    node: NodeRunner,
+    locale: str,
+    range: tuple[NumberT, NumberT],
+    unit: UnitT,
+    unit_options: NumberFormatOptionsDictT,
+):
+    full_options_dict: NumberFormatOptionsDictT = {
+        **unit_options,
+        "unit": unit,
+        "style": "unit",
+    }
+    options = NumberFormatOptions(**full_options_dict)
+    formatter = NumberFormat(locale, options)
+    assert (
+        normalize_whitespace(formatter.format_range(*range))
+        == normalize_whitespace(node.numberformat_formatrange(locale, options, *range))
     )
 
 

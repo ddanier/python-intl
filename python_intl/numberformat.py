@@ -164,3 +164,27 @@ class NumberFormat:
                 return self._icu_number_formatter.formatDouble(value)
             case decimal.Decimal():
                 return self._icu_number_formatter.formatDecimal(str(value).encode("ascii"))
+
+    @cached_property
+    def _icu_number_range_formatter(self) -> icu.LocalizedNumberRangeFormatter:
+        return (
+            icu.NumberRangeFormatter
+            .withLocale(self.locale._icu_locale)
+            .numberFormatterBoth(self._icu_number_formatter.withoutLocale())
+        )
+
+    def format_range(self, start_value: NumberT, end_value: NumberT, /) -> str:
+        match start_value, end_value:
+            case int(), int():
+                return self._icu_number_range_formatter.formatIntRange(start_value, end_value)
+            case float(), float():
+                return self._icu_number_range_formatter.formatDoubleRange(start_value, end_value)
+            case decimal.Decimal(), decimal.Decimal():
+                return self._icu_number_range_formatter.formatDoubleRange(
+                    # For some reason formatDecimalRange fails, so we fall back to floats
+                    float(start_value),
+                    float(end_value),
+                )
+            case _:
+                error = "Both parameters passed to format_range must have the same type"
+                raise ValueError(error)

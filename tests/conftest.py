@@ -43,6 +43,24 @@ class NodeRunner:
         assert isinstance(result, str)
         return result
 
+    def numberformat_formatrange(
+        self,
+        locale: str,
+        options: NumberFormatOptions,
+        start_value: NumberT,
+        end_value: NumberT,
+    ) -> str:
+        result = json.loads(
+            self._run_node(f"""
+                const formatter = new Intl.NumberFormat({json.dumps(locale)}, {json.dumps(options.to_json())});
+                const start_value = {str(start_value) if isinstance(start_value, decimal.Decimal) else json.dumps(start_value)};
+                const end_value = {str(end_value) if isinstance(end_value, decimal.Decimal) else json.dumps(end_value)};
+                console.log(JSON.stringify(formatter.formatRange(start_value, end_value)));
+            """),
+        )
+        assert isinstance(result, str)
+        return result
+
     def datetimeformat_format(
         self,
         locale: str,

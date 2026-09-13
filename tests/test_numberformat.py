@@ -98,3 +98,20 @@ def test_currency_format(locale: str, options_: NumberFormatOptionsDictT, expect
     options = NumberFormatOptions(**full_options_dict)
     formatter = NumberFormat(locale, options)
     assert normalize_whitespace(formatter.format(1234.567)) == expected
+
+
+@pytest.mark.parametrize(
+    ("locale", "expected"),
+    [
+        ("de-DE", "1.234,567\u20139.876,54321 l"),
+        ("en-US", "1,234.567\u20139,876.54321 L"),
+        ("en-GB", "1,234.567\u20139,876.54321 l"),
+        ("fr-FR", "1 234,567\u20139 876,54321 l"),
+        ("it-IT", "1234,567-9876,54321 l"),
+        ("sv-SE", "1 234,567\u20139 876,54321 l"),
+    ],
+)
+def test_unit_format_range(locale: str, expected: str):
+    options = NumberFormatOptions(style="unit", unit="liter")
+    formatter = NumberFormat(locale, options)
+    assert normalize_whitespace(formatter.format_range(1234.567, 9876.54321)) == expected
