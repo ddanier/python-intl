@@ -58,6 +58,38 @@ locale = Intl.Locale("de-DE")
 allow using the locale class instead of a string with the other classes. There will
 be more later.
 
+### `Intl.NumberFormat`
+
+#### Example usage
+
+```python
+import python_intl as Intl
+
+# Format liters
+number = 1234.567
+formatter = Intl.NumberFormat("de-DE", {"style": "unit", "unit": "liter"})
+formatter.format(number)
+# Result = "1.234,567 l"
+
+# Format euros
+number = 1234.567
+formatter = Intl.NumberFormat("de-DE", {"style": "currency", "currency": "EUR"})
+formatter.format(number)
+# Result = "1.234,57 €"
+# Note: Result will be automatically rounded to two decimal places, as EUR defines.
+```
+
+#### Compatibility
+
+| Method                            | Status | Python name                          |
+| --------------------------------- | :----: | ------------------------------------ |
+| `NumberFormat.format`             | ✅     |                                      |
+| `NumberFormat.formatToParts`      | ❌     | `NumberFormat.format_to_parts`       |
+| `NumberFormat.supportedLocalesOf` | ❌     |                                      |
+| `NumberFormat.formatRange`        | ❌     | `NumberFormat.format_range`          |
+| `NumberFormat.formatRangeToParts` | ❌     | `NumberFormat.format_range_to_parts` |
+| `NumberFormat.resolvedOptions`    | ❌     |                                      |
+
 ### `Intl.DateTimeFormat`
 
 #### Example usage
