@@ -2,7 +2,7 @@ import re
 
 WHITESPACE_RE = re.compile(r"\s")
 DATETIME_RANGE_WHITESPACE_RE = re.compile("\\s?\u2013\\s?")
-NUMBER_RANGE_WHITESPACE_RE = re.compile("\\s?[\u2013-]\\s?")
+NUMBER_RANGE_WHITESPACE_RE = re.compile("\\s?[\u2012\u2013-]\\s?")
 
 
 def normalize_whitespace(value: str) -> str:
