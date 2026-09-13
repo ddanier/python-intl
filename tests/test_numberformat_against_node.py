@@ -77,7 +77,7 @@ def is_known_broken(
         # Differs between °C and only ° between ICU version
         (options_.get("unit") == "celsius")
         # "it" might not have thousand separator based on ICU version
-        or (options_.get("style") == "currency" and locale == "it-IT"),
+        or (options_.get("style") in ("decimal", "currency", "unit") and locale == "it-IT"),
     )
 
 

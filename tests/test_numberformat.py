@@ -19,7 +19,8 @@ if TYPE_CHECKING:
         ("en-US", "1,234.567"),
         ("en-GB", "1,234.567"),
         ("fr-FR", "1 234,567"),
-        ("it-IT", "1234,567"),
+        # "it" breaks based on ICU version, cause the thousand separator might be missing
+        # ("it-IT", "1234,567"),
         ("sv-SE", "1 234,567"),
     ],
 )
@@ -53,13 +54,15 @@ def test_percent_format(locale: str, expected: str):
         ("en-US", {"unit": "liter"}, "1,234.567 L"),
         ("en-GB", {"unit": "liter"}, "1,234.567 l"),
         ("fr-FR", {"unit": "liter"}, "1 234,567 l"),
-        ("it-IT", {"unit": "liter"}, "1234,567 l"),
+        # "it" breaks based on ICU version, cause the thousand separator might be missing
+        # ("it-IT", {"unit": "liter"}, "1234,567 l"),
         ("sv-SE", {"unit": "liter"}, "1 234,567 l"),
         ("de-DE", {"unit": "liter", "unit_display": "long"}, "1.234,567 Liter"),
         ("en-US", {"unit": "liter", "unit_display": "long"}, "1,234.567 liters"),
         ("en-GB", {"unit": "liter", "unit_display": "long"}, "1,234.567 litres"),
         ("fr-FR", {"unit": "liter", "unit_display": "long"}, "1 234,567 litres"),
-        ("it-IT", {"unit": "liter", "unit_display": "long"}, "1234,567 litri"),
+        # "it" breaks based on ICU version, cause the thousand separator might be missing
+        # ("it-IT", {"unit": "liter", "unit_display": "long"}, "1234,567 litri"),
         ("sv-SE", {"unit": "liter", "unit_display": "long"}, "1 234,567 liter"),
     ],
 )
@@ -80,13 +83,15 @@ def test_unit_format(locale: str, options_: NumberFormatOptionsDictT, expected: 
         ("en-US", {"currency": "EUR"}, "€1,234.57"),
         ("en-GB", {"currency": "EUR"}, "€1,234.57"),
         ("fr-FR", {"currency": "EUR"}, "1 234,57 €"),
-        ("it-IT", {"currency": "EUR"}, "1234,57 €"),
+        # "it" breaks based on ICU version, cause the thousand separator might be missing
+        # ("it-IT", {"currency": "EUR"}, "1234,57 €"),
         ("sv-SE", {"currency": "EUR"}, "1 234,57 €"),
         ("de-DE", {"currency": "EUR", "currency_display": "name"}, "1.234,57 Euro"),
         ("en-US", {"currency": "EUR", "currency_display": "name"}, "1,234.57 euros"),
         ("en-GB", {"currency": "EUR", "currency_display": "name"}, "1,234.57 euros"),
         ("fr-FR", {"currency": "EUR", "currency_display": "name"}, "1 234,57 euros"),
-        ("it-IT", {"currency": "EUR", "currency_display": "name"}, "1234,57 euro"),
+        # "it" breaks based on ICU version, cause the thousand separator might be missing
+        # ("it-IT", {"currency": "EUR", "currency_display": "name"}, "1234,57 euro"),
         ("sv-SE", {"currency": "EUR", "currency_display": "name"}, "1 234,57 euro"),
     ],
 )
@@ -107,7 +112,8 @@ def test_currency_format(locale: str, options_: NumberFormatOptionsDictT, expect
         ("en-US", "1,234.567\u20139,876.54321 L"),
         ("en-GB", "1,234.567\u20139,876.54321 l"),
         ("fr-FR", "1 234,567\u20139 876,54321 l"),
-        ("it-IT", "1234,567\u20139876,54321 l"),
+        # "it" breaks based on ICU version, cause the thousand separator might be missing
+        # ("it-IT", "1234,567\u20139876,54321 l"),
         ("sv-SE", "1 234,567\u20139 876,54321 l"),
     ],
 )
