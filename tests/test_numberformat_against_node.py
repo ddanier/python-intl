@@ -151,7 +151,7 @@ def test_unit_format(
     LOCALES,
 )
 @pytest.mark.parametrize(
-    "range",
+    "range_",
     RANGES,
 )
 @pytest.mark.parametrize(
@@ -165,7 +165,7 @@ def test_unit_format(
 def test_unit_format_range(
     node: NodeRunner,
     locale: str,
-    range: tuple[NumberT, NumberT],
+    range_: tuple[NumberT, NumberT],
     unit: UnitT,
     unit_options: NumberFormatOptionsDictT,
 ):
@@ -177,8 +177,8 @@ def test_unit_format_range(
     options = NumberFormatOptions(**full_options_dict)
     formatter = NumberFormat(locale, options)
     assert (
-        normalize_whitespace(formatter.format_range(*range))
-        == normalize_whitespace(node.numberformat_formatrange(locale, options, *range))
+        normalize_whitespace(formatter.format_range(*range_))
+        == normalize_whitespace(node.numberformat_formatrange(locale, options, *range_))
     )
 
 

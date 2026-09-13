@@ -50,11 +50,21 @@ class NodeRunner:
         start_value: NumberT,
         end_value: NumberT,
     ) -> str:
+        start_value_repr = (
+            str(start_value)
+            if isinstance(start_value, decimal.Decimal)
+            else json.dumps(start_value)
+        )
+        end_value_repr = (
+            str(end_value)
+            if isinstance(end_value, decimal.Decimal)
+            else json.dumps(end_value)
+        )
         result = json.loads(
             self._run_node(f"""
                 const formatter = new Intl.NumberFormat({json.dumps(locale)}, {json.dumps(options.to_json())});
-                const start_value = {str(start_value) if isinstance(start_value, decimal.Decimal) else json.dumps(start_value)};
-                const end_value = {str(end_value) if isinstance(end_value, decimal.Decimal) else json.dumps(end_value)};
+                const start_value = {start_value_repr};
+                const end_value = {end_value_repr};
                 console.log(JSON.stringify(formatter.formatRange(start_value, end_value)));
             """),
         )
