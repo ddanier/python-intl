@@ -8,7 +8,7 @@ import pytest
 from python_intl import DateTimeFormat
 from python_intl.datetimeformat import DateTimeFormatOptions
 
-from .utils import normalize_parts_whitespace, normalize_range_whitespace, normalize_whitespace
+from .utils import normalize_datetime_range_whitespace, normalize_parts_whitespace, normalize_whitespace
 
 if TYPE_CHECKING:
     from python_intl.datetimeformat import DateTimeFormatOptionsDictT
@@ -150,8 +150,8 @@ def test_format_range_against_js(
     options = DateTimeFormatOptions(**options_)
     formatter = DateTimeFormat(locale, options)
     assert (
-        normalize_range_whitespace(formatter.format_range(start_datetime, end_datetime), for_node=True)
-        == normalize_range_whitespace(
+        normalize_datetime_range_whitespace(formatter.format_range(start_datetime, end_datetime), for_node=True)
+        == normalize_datetime_range_whitespace(
             node.datetimeformat_formatrange(locale, options, start_datetime, end_datetime),
             for_node=True,
         )

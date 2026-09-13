@@ -8,7 +8,7 @@ import pytest
 from python_intl import DateTimeFormat
 from python_intl.datetimeformat import DateTimeFormatOptions
 
-from .utils import normalize_parts_whitespace, normalize_range_whitespace
+from .utils import normalize_datetime_range_whitespace, normalize_parts_whitespace
 
 if TYPE_CHECKING:
     from python_intl.datetimeformat import DateTimeFormatOptionsDictT
@@ -176,7 +176,7 @@ def test_full_numeric_date_range(locale: str, expected: str):
     datetime_start = dt.datetime(2026, 8, 15, tzinfo=dt.UTC)
     datetime_end = dt.datetime(2026, 9, 30, tzinfo=dt.UTC)
     formatter = DateTimeFormat(locale, {"year": "numeric", "month": "2-digit", "day": "2-digit"})
-    assert normalize_range_whitespace(formatter.format_range(datetime_start, datetime_end)) == expected
+    assert normalize_datetime_range_whitespace(formatter.format_range(datetime_start, datetime_end)) == expected
 
 
 @pytest.mark.parametrize(
@@ -193,7 +193,7 @@ def test_full_numeric_date_range_over_year(locale: str, expected: str):
     datetime_start = dt.datetime(2025, 8, 15, tzinfo=dt.UTC)
     datetime_end = dt.datetime(2026, 9, 30, tzinfo=dt.UTC)
     formatter = DateTimeFormat(locale, {"year": "numeric", "month": "2-digit", "day": "2-digit"})
-    assert normalize_range_whitespace(formatter.format_range(datetime_start, datetime_end)) == expected
+    assert normalize_datetime_range_whitespace(formatter.format_range(datetime_start, datetime_end)) == expected
 
 
 @pytest.mark.parametrize(
@@ -289,7 +289,7 @@ def test_written_date_range(locale: str, expected: str):
     datetime_start = dt.datetime(2026, 8, 15, tzinfo=dt.UTC)
     datetime_end = dt.datetime(2026, 9, 30, tzinfo=dt.UTC)
     formatter = DateTimeFormat(locale, {"year": "numeric", "month": "long", "day": "numeric"})
-    assert normalize_range_whitespace(formatter.format_range(datetime_start, datetime_end)) == expected
+    assert normalize_datetime_range_whitespace(formatter.format_range(datetime_start, datetime_end)) == expected
 
 
 @pytest.mark.parametrize(
@@ -306,4 +306,4 @@ def test_written_date_range_over_year(locale: str, expected: str):
     datetime_start = dt.datetime(2025, 8, 15, tzinfo=dt.UTC)
     datetime_end = dt.datetime(2026, 9, 30, tzinfo=dt.UTC)
     formatter = DateTimeFormat(locale, {"year": "numeric", "month": "long", "day": "numeric"})
-    assert normalize_range_whitespace(formatter.format_range(datetime_start, datetime_end)) == expected
+    assert normalize_datetime_range_whitespace(formatter.format_range(datetime_start, datetime_end)) == expected
