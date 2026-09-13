@@ -1,6 +1,6 @@
 [project]
 name = "python-intl"
-version = "0.8.0"
+version = "0.9.0"
 description = "Python implementation of the Intl JavaScript API"
 readme = "README.md"
 authors = [
