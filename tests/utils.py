@@ -1,7 +1,7 @@
 import re
 
 WHITESPACE_RE = re.compile(r"\s")
-RANGE_WHITESPACE_RE = re.compile(r"\s?–\s?")  # noqa: RUF001
+RANGE_WHITESPACE_RE = re.compile(r"\s?[-–]\s?")  # noqa: RUF001
 
 
 def normalize_whitespace(value: str) -> str:
