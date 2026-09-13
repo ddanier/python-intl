@@ -7,7 +7,7 @@ import pytest
 
 from python_intl import NumberFormat, NumberFormatOptions
 
-from .utils import normalize_whitespace
+from .utils import normalize_range_whitespace, normalize_whitespace
 
 if TYPE_CHECKING:
     from python_intl._types import CurrencyT, UnitT
@@ -177,8 +177,8 @@ def test_unit_format_range(
     options = NumberFormatOptions(**full_options_dict)
     formatter = NumberFormat(locale, options)
     assert (
-        normalize_whitespace(formatter.format_range(*range_))
-        == normalize_whitespace(node.numberformat_formatrange(locale, options, *range_))
+        normalize_range_whitespace(formatter.format_range(*range_))
+        == normalize_range_whitespace(node.numberformat_formatrange(locale, options, *range_))
     )
 
 
