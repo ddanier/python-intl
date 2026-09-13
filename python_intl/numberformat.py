@@ -167,10 +167,11 @@ class NumberFormat:
 
     @cached_property
     def _icu_number_range_formatter(self) -> icu.LocalizedNumberRangeFormatter:
+        skeleton = _options_to_skeleton(self.options)
         return (
             icu.NumberRangeFormatter
             .withLocale(self.locale._icu_locale)
-            .numberFormatterBoth(self._icu_number_formatter.withoutLocale())
+            .numberFormatterBoth(icu.NumberFormatter.forSkeleton(skeleton))
         )
 
     def format_range(self, start_value: NumberT, end_value: NumberT, /) -> str:
