@@ -150,9 +150,10 @@ def test_format_range_against_js(
     options = DateTimeFormatOptions(**options_)
     formatter = DateTimeFormat(locale, options)
     assert (
-        normalize_range_whitespace(formatter.format_range(start_datetime, end_datetime))
+        normalize_range_whitespace(formatter.format_range(start_datetime, end_datetime), for_node=True)
         == normalize_range_whitespace(
             node.datetimeformat_formatrange(locale, options, start_datetime, end_datetime),
+            for_node=True,
         )
     )
 
@@ -190,9 +191,11 @@ def test_format_range_to_parts_against_js(
         normalize_parts_whitespace(
             [part.to_json() for part in formatter.format_range_to_parts(start_datetime, end_datetime)],
             for_range=True,
+            for_node=True,
         )
         == normalize_parts_whitespace(
             node.datetimeformat_formatrangetoparts(locale, options, start_datetime, end_datetime),
             for_range=True,
+            for_node=True,
         )
     )

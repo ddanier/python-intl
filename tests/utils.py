@@ -1,7 +1,7 @@
 import re
 
 WHITESPACE_RE = re.compile(r"\s")
-RANGE_WHITESPACE_RE = re.compile(r"\s?[-–]\s?")  # noqa: RUF001
+RANGE_WHITESPACE_RE = re.compile("\\s?\u2013\\s?")
 
 
 def normalize_whitespace(value: str) -> str:
@@ -9,12 +9,27 @@ def normalize_whitespace(value: str) -> str:
     return WHITESPACE_RE.sub(" ", value)
 
 
-def normalize_range_whitespace(value: str) -> str:
+def normalize_range_whitespace(
+    value: str,
+    *,
+    for_node: bool = False,
+) -> str:
     # Ensure we don't have any special whitespace like NBSP
-    return WHITESPACE_RE.sub(" ", RANGE_WHITESPACE_RE.sub(" – ", value))  # noqa: RUF001
+    return WHITESPACE_RE.sub(
+        " ",
+        RANGE_WHITESPACE_RE.sub(
+            " - " if for_node else " \u2013 ",
+            value,
+        ),
+    )
 
 
-def normalize_parts_whitespace(parts: list[dict[str, str]], *, for_range: bool = False) -> list[dict[str, str]]:
+def normalize_parts_whitespace(
+    parts: list[dict[str, str]],
+    *,
+    for_node: bool = False,
+    for_range: bool = False,
+) -> list[dict[str, str]]:
     def _normalize_part_value(part: dict[str, str]) -> dict[str, str]:
         if "value" not in part:
             return part
@@ -22,7 +37,7 @@ def normalize_parts_whitespace(parts: list[dict[str, str]], *, for_range: bool =
         return {
             **part,
             "value": (
-                normalize_range_whitespace(part["value"])
+                normalize_range_whitespace(part["value"], for_node=for_node)
                 if for_range
                 else normalize_whitespace(part["value"])
             ),

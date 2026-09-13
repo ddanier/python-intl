@@ -177,8 +177,8 @@ def test_unit_format_range(
     options = NumberFormatOptions(**full_options_dict)
     formatter = NumberFormat(locale, options)
     assert (
-        normalize_range_whitespace(formatter.format_range(*range_))
-        == normalize_range_whitespace(node.numberformat_formatrange(locale, options, *range_))
+        normalize_range_whitespace(formatter.format_range(*range_), for_node=True)
+        == normalize_range_whitespace(node.numberformat_formatrange(locale, options, *range_), for_node=True)
     )
 
 
