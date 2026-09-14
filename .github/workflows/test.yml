@@ -1,4 +1,4 @@
-name: "TEST: Run pytest using tox"
+name: "TEST: Run pytest"
 on:
   push:
   pull_request:
