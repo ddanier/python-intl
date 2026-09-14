@@ -24,6 +24,7 @@ if TYPE_CHECKING:
         ("sv-SE", "1 234,567"),
     ],
 )
+@pytest.mark.unit
 def test_decimal_format(locale: str, expected: str):
     options = NumberFormatOptions(style="decimal")
     formatter = NumberFormat(locale, options)
@@ -41,6 +42,7 @@ def test_decimal_format(locale: str, expected: str):
         ("sv-SE", "123 457 %"),
     ],
 )
+@pytest.mark.unit
 def test_percent_format(locale: str, expected: str):
     options = NumberFormatOptions(style="percent")
     formatter = NumberFormat(locale, options)
@@ -66,6 +68,7 @@ def test_percent_format(locale: str, expected: str):
         ("sv-SE", {"unit": "liter", "unit_display": "long"}, "1 234,567 liter"),
     ],
 )
+@pytest.mark.unit
 def test_unit_format(locale: str, options_: NumberFormatOptionsDictT, expected: str):
     full_options_dict: NumberFormatOptionsDictT = {
         **options_,
@@ -95,6 +98,7 @@ def test_unit_format(locale: str, options_: NumberFormatOptionsDictT, expected: 
         ("sv-SE", {"currency": "EUR", "currency_display": "name"}, "1 234,57 euro"),
     ],
 )
+@pytest.mark.unit
 def test_currency_format(locale: str, options_: NumberFormatOptionsDictT, expected: str):
     full_options_dict: NumberFormatOptionsDictT = {
         **options_,
@@ -117,6 +121,7 @@ def test_currency_format(locale: str, options_: NumberFormatOptionsDictT, expect
         ("sv-SE", "1 234,567\u20139 876,54321 l"),
     ],
 )
+@pytest.mark.unit
 def test_unit_format_range(locale: str, expected: str):
     options = NumberFormatOptions(style="unit", unit="liter")
     formatter = NumberFormat(locale, options)

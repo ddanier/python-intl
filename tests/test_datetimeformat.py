@@ -31,6 +31,7 @@ if TYPE_CHECKING:
         ),
     ],
 )
+@pytest.mark.unit
 def test_options_to_json(options_: DateTimeFormatOptionsDictT, expected: DateTimeFormatOptionsDictT):
     options = DateTimeFormatOptions(**options_)
     assert options.to_json() == expected
@@ -45,6 +46,7 @@ def test_options_to_json(options_: DateTimeFormatOptionsDictT, expected: DateTim
         ("sv-SE", "2026-08-15"),
     ],
 )
+@pytest.mark.unit
 def test_full_numeric_date(locale: str, expected: str):
     datetime_ = dt.datetime(2026, 8, 15, tzinfo=dt.UTC)
     formatter = DateTimeFormat(locale, {"year": "numeric", "month": "2-digit", "day": "2-digit"})
@@ -60,6 +62,7 @@ def test_full_numeric_date(locale: str, expected: str):
         ("sv-SE", [("year", "2026"), ("literal", "-"), ("month", "08"), ("literal", "-"), ("day", "15")]),
     ],
 )
+@pytest.mark.unit
 def test_full_numeric_date_parts(locale: str, expected: str):
     datetime_ = dt.datetime(2026, 8, 15, tzinfo=dt.UTC)
     formatter = DateTimeFormat(locale, {"year": "numeric", "month": "2-digit", "day": "2-digit"})
@@ -75,6 +78,7 @@ def test_full_numeric_date_parts(locale: str, expected: str):
         ("sv-SE", "15 augusti 2026"),
     ],
 )
+@pytest.mark.unit
 def test_written_date(locale: str, expected: str):
     datetime_ = dt.datetime(2026, 8, 15, tzinfo=dt.UTC)
     formatter = DateTimeFormat(locale, {"year": "numeric", "month": "long", "day": "numeric"})
@@ -90,6 +94,7 @@ def test_written_date(locale: str, expected: str):
         ("sv-SE", [("day", "15"), ("literal", " "), ("month", "augusti"), ("literal", " "), ("year", "2026")]),
     ],
 )
+@pytest.mark.unit
 def test_written_date_parts(locale: str, expected: str):
     datetime_ = dt.datetime(2026, 8, 15, tzinfo=dt.UTC)
     formatter = DateTimeFormat(locale, {"year": "numeric", "month": "long", "day": "numeric"})
@@ -105,6 +110,7 @@ def test_written_date_parts(locale: str, expected: str):
         ("sv-SE", "lördag 15 augusti"),
     ],
 )
+@pytest.mark.unit
 def test_written_day_and_date(locale: str, expected: str):
     datetime_ = dt.datetime(2026, 8, 15, tzinfo=dt.UTC)
     formatter = DateTimeFormat(locale, {"month": "long", "day": "numeric", "weekday": "long"})
@@ -156,6 +162,7 @@ def test_written_day_and_date(locale: str, expected: str):
         ),
     ],
 )
+@pytest.mark.unit
 def test_written_day_and_date_parts(locale: str, expected: str):
     datetime_ = dt.datetime(2026, 8, 15, tzinfo=dt.UTC)
     formatter = DateTimeFormat(locale, {"month": "long", "day": "numeric", "weekday": "long"})
@@ -172,6 +179,7 @@ def test_written_day_and_date_parts(locale: str, expected: str):
         ("sv-SE", "2026-08-15 \u2013 09-30"),
     ],
 )
+@pytest.mark.unit
 def test_full_numeric_date_range(locale: str, expected: str):
     datetime_start = dt.datetime(2026, 8, 15, tzinfo=dt.UTC)
     datetime_end = dt.datetime(2026, 9, 30, tzinfo=dt.UTC)
@@ -189,6 +197,7 @@ def test_full_numeric_date_range(locale: str, expected: str):
         ("sv-SE", "2025-08-15 \u2013 2026-09-30"),
     ],
 )
+@pytest.mark.unit
 def test_full_numeric_date_range_over_year(locale: str, expected: str):
     datetime_start = dt.datetime(2025, 8, 15, tzinfo=dt.UTC)
     datetime_end = dt.datetime(2026, 9, 30, tzinfo=dt.UTC)
@@ -262,6 +271,7 @@ def test_full_numeric_date_range_over_year(locale: str, expected: str):
         ),
     ],
 )
+@pytest.mark.unit
 def test_full_numeric_date_range_parts(locale: str, expected: str):
     datetime_start = dt.datetime(2026, 8, 15, tzinfo=dt.UTC)
     datetime_end = dt.datetime(2026, 9, 30, tzinfo=dt.UTC)
@@ -285,6 +295,7 @@ def test_full_numeric_date_range_parts(locale: str, expected: str):
         ("sv-SE", "15 augusti \u2013 30 september 2026"),
     ],
 )
+@pytest.mark.unit
 def test_written_date_range(locale: str, expected: str):
     datetime_start = dt.datetime(2026, 8, 15, tzinfo=dt.UTC)
     datetime_end = dt.datetime(2026, 9, 30, tzinfo=dt.UTC)
@@ -302,6 +313,7 @@ def test_written_date_range(locale: str, expected: str):
         ("sv-SE", "15 augusti 2025 \u2013 30 september 2026"),
     ],
 )
+@pytest.mark.unit
 def test_written_date_range_over_year(locale: str, expected: str):
     datetime_start = dt.datetime(2025, 8, 15, tzinfo=dt.UTC)
     datetime_end = dt.datetime(2026, 9, 30, tzinfo=dt.UTC)

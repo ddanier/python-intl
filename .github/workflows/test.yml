@@ -34,6 +34,7 @@ jobs:
           python --version
           uv run python -c "import icu; print(icu.__version__)"
           pkg-config --modversion icu-i18n
+          uv run pytest --version
       - name: Test with pytest
         run: |
-          uv run tox -e 'py'
+          uv run pytest --numprocesses=logical --cov=python_intl --cov-report term-missing:skip-covered --exitfirst

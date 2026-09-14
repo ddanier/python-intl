@@ -89,6 +89,7 @@ def is_known_broken(
     "value",
     VALUES,
 )
+@pytest.mark.node
 def test_decimal_format(
     node: NodeRunner,
     locale: str,
@@ -110,6 +111,7 @@ def test_decimal_format(
     "value",
     VALUES,
 )
+@pytest.mark.node
 def test_percent_format(
     node: NodeRunner,
     locale: str,
@@ -139,6 +141,7 @@ def test_percent_format(
     "unit_options",
     UNIT_OPTIONS,
 )
+@pytest.mark.node
 def test_unit_format(
     node: NodeRunner,
     locale: str,
@@ -179,6 +182,7 @@ def test_unit_format(
     "unit_options",
     UNIT_OPTIONS,
 )
+@pytest.mark.node
 def test_unit_format_range(
     node: NodeRunner,
     locale: str,
@@ -222,6 +226,7 @@ def test_unit_format_range(
     "currency_options",
     CURRENCY_OPTIONS,
 )
+@pytest.mark.node
 def test_currency_format(
     node: NodeRunner,
     locale: str,

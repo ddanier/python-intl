@@ -61,6 +61,7 @@ STRINGS_NUMERIC = [
         ("dv-SE", {"numeric": True, "ignore_punctuation": True}, STRINGS_NUMERIC, ["1 x", "2a", "2 x", "10 x"]),
     ],
 )
+@pytest.mark.unit
 def test_sorted(
     locale: str,
     options_: CollatorOptionsDictT,

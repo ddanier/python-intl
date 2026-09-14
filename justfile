@@ -28,6 +28,9 @@ uv *args:
 
 test *args: (uv "run" "pytest" "--numprocesses=logical" "--cov=python_intl" "--cov-report" "term-missing:skip-covered" args)
 
+test-unit *args: (uv "run" "pytest" "--numprocesses=logical" "--cov=python_intl" "--cov-report" "term-missing:skip-covered" "-m" "unit" args)
+test-node *args: (uv "run" "pytest" "--numprocesses=logical" "--cov=python_intl" "--cov-report" "term-missing:skip-covered" "-m" "node" args)
+
 test-all: (uv "run" "tox")
 
 ruff *args: (uv "run" "ruff" "check" "python_intl" "tests" "examples" args)
