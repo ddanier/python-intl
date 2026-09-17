@@ -89,7 +89,7 @@ _PATTERN_SYMBOL_TO_TYPE: dict[str, DatetimeFormattedPartTypeT] = {
     "x": "time_zone_name",
     "X": "time_zone_name",
 }
-_PATTERN_FIELD_TO_TYPE: dict[icu.UDateTimePatternField, DatetimePatternPartTypeT] = {
+_PATTERN_FIELD_TO_TYPE: dict[icu.UDateTimePatternField, DatetimeFormattedPartTypeT] = {
     icu.DateFormat.ERA_FIELD: "era",
     icu.DateFormat.YEAR_FIELD: "year",
     icu.DateFormat.MONTH_FIELD: "month",
