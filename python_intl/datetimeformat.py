@@ -30,7 +30,7 @@ if TYPE_CHECKING:
         YearFormatT,
     )
 
-    type DatetimePatternPartTypeT = Literal[
+    type DatetimeFormattedPartTypeT = Literal[
         "literal", "unknown",
         "era", "year", "month", "weekday", "day", "day_period",
         "hour", "minute", "second", "fraction_second_digits",
@@ -58,7 +58,7 @@ if TYPE_CHECKING:
         time_zone_name: NotRequired[TimezoneNameFormatT]
 
 _PATTERN_SYMBOLS = "GyYuUrQqMLqQdDFgEecabBhHkKmsSAzZOvVxX"  # includes unused
-_PATTERN_SYMBOL_TO_TYPE: dict[str, DatetimePatternPartTypeT] = {
+_PATTERN_SYMBOL_TO_TYPE: dict[str, DatetimeFormattedPartTypeT] = {
     "G": "era",
     "y": "year",
     "Y": "year",
@@ -314,8 +314,8 @@ class FormatPatternNotFoundError(Exception):
 
 
 @dataclasses.dataclass(kw_only=True, frozen=True, slots=True)
-class DateTimePatternPart:
-    type: DatetimePatternPartTypeT
+class DateTimeFormattedPart:
+    type: DatetimeFormattedPartTypeT
     value: str
     _pattern: str | None = None
 
@@ -328,8 +328,8 @@ class DateTimePatternPart:
 
 
 @dataclasses.dataclass(kw_only=True, frozen=True, slots=True)
-class DateTimeIntervalPatternPart:
-    type: DatetimePatternPartTypeT
+class DateTimeIntervalFormattedPart:
+    type: DatetimeFormattedPartTypeT
     value: str
     source: Literal["start_range", "end_range", "shared"]
 
@@ -425,7 +425,12 @@ class DateTimeFormat:
     def format(self, datetime_: dt.datetime, /) -> str:
         return self._icu_date_format.format(datetime_)
 
-    def format_to_parts(self, datetime_: dt.datetime, /) -> Iterable[DateTimePatternPart]:
+    def format_to_parts(self, datetime_: dt.datetime, /) -> Iterable[DateTimeFormattedPart]:
+        # Sadly there is no formatToValue() function available inside the SimpleDateFormat class
+        # ICU provides (formatToValue() could return a "formatted" object one could iterate
+        # over to get the different parts). This means we need to parse the pattern ourselved here
+        # and create the parts ourselves. Luckily we can adapt the ICU code for parsing the pattern
+        # easily and thus still have a relatively sane implementation.
         # Based on https://github.com/unicode-org/icu/blob/6fb634d81d10dd4667fb3fbcd1f19d9b9b926e62/icu4c/source/i18n/smpdtfmt.cpp#L1060
         pattern = self._icu_pattern
         in_quote = False
@@ -438,7 +443,7 @@ class DateTimeFormat:
             char = pattern[i]
 
             if char != prev_char and count > 0:
-                yield DateTimePatternPart(
+                yield DateTimeFormattedPart(
                     type=_PATTERN_SYMBOL_TO_TYPE.get(prev_char, "unknown"),
                     value=icu.SimpleDateFormat(prev_char * count, self.locale._icu_locale).format(datetime_),
                     _pattern=prev_char * count,
@@ -453,7 +458,7 @@ class DateTimeFormat:
                     in_quote = not in_quote
             elif not in_quote and char in _PATTERN_SYMBOLS:
                 if literal_chars:
-                    yield DateTimePatternPart(
+                    yield DateTimeFormattedPart(
                         type="literal",
                         value="".join(literal_chars),
                     )
@@ -466,14 +471,14 @@ class DateTimeFormat:
             i += 1
 
         if count > 0:
-            yield DateTimePatternPart(
+            yield DateTimeFormattedPart(
                 type=_PATTERN_SYMBOL_TO_TYPE.get(prev_char, "unknown"),
                 value=icu.SimpleDateFormat(prev_char * count, self.locale._icu_locale).format(datetime_),
                 _pattern=prev_char * count,
             )
             assert not literal_chars  # noqa: S101
         elif literal_chars:
-            yield DateTimePatternPart(
+            yield DateTimeFormattedPart(
                 type="literal",
                 value="".join(literal_chars),
             )
@@ -495,7 +500,7 @@ class DateTimeFormat:
         self,
         start_datetime: dt.datetime,
         end_datetime: dt.datetime,
-    ) -> Iterable[DateTimeIntervalPatternPart]:
+    ) -> Iterable[DateTimeIntervalFormattedPart]:
         icu_date_interval = icu.DateInterval(start_datetime, end_datetime)
         formatted = self._icu_dateinterval_format.formatToValue(icu_date_interval)
 
@@ -524,14 +529,14 @@ class DateTimeFormat:
         for part in formatted:
             span = _PartSpan.from_constrained_fieldposition(part)
             if span.start > last_end:
-                yield DateTimeIntervalPatternPart(
+                yield DateTimeIntervalFormattedPart(
                     type="literal",
                     value=result_string[last_end:span.start],
                     source=source_of(_PartSpan(start=last_end, end=span.start)),
                 )
 
             if part.getCategory() == icu.UFieldCategory.DATE:
-                yield DateTimeIntervalPatternPart(
+                yield DateTimeIntervalFormattedPart(
                     type=_PATTERN_FIELD_TO_TYPE.get(part.getField(), "unknown"),
                     value=result_string[span.start:span.end],
                     source=source_of(span),
@@ -541,7 +546,7 @@ class DateTimeFormat:
 
         # Ensure we didn't miss anything at the end
         if last_end < len(result_string):
-            yield DateTimeIntervalPatternPart(
+            yield DateTimeIntervalFormattedPart(
                 type="literal",
                 value=result_string[last_end:],
                 source=source_of(_PartSpan(start=last_end, end=len(result_string))),
