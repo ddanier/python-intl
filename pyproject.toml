@@ -111,6 +111,8 @@ ignore_missing_imports = true
 [tool.basedpyright]
 pythonVersion = "3.12"
 reportAny = false
+reportExplicitAny = false
+reportUnusedCallResult = false
 reportMatchNotExhaustive = false
 reportUnknownLambdaType = false
 reportPrivateUsage = false
