@@ -7,7 +7,7 @@ WHITESPACE_RE = re.compile(r"\s")
 DATETIME_RANGE_WHITESPACE_RE = re.compile("\\s?\u2013\\s?")
 NUMBER_RANGE_WHITESPACE_RE = re.compile("\\s?[\u2012\u2013-]\\s?")
 
-ICU_VERSION =  Version(icu.__version__)
+ICU_VERSION =  Version(icu.ICU_VERSION)
 IS_ICU_78_OR_NEWER = Version("78.0") <= ICU_VERSION
 
 
