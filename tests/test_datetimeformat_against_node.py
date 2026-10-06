@@ -8,7 +8,12 @@ import pytest
 from python_intl import DateTimeFormat
 from python_intl.datetimeformat import DateTimeFormatOptions
 
-from .utils import normalize_datetime_range_whitespace, normalize_parts_whitespace, normalize_whitespace
+from .utils import (
+    IS_ICU_78_OR_NEWER,
+    normalize_datetime_range_whitespace,
+    normalize_parts_whitespace,
+    normalize_whitespace,
+)
 
 if TYPE_CHECKING:
     from python_intl.datetimeformat import DateTimeFormatOptionsDictT
@@ -52,11 +57,11 @@ def is_known_broken(
 ) -> bool:
     # Sadly some formats don't match, skip for now
     return bool(
-        (options_.get("year") and options_.get("weekday"))
+        (options_.get("year") and options_.get("weekday") and not IS_ICU_78_OR_NEWER)
         or (options_.get("day_period") and locale in ("en", "en-US"))
         or (options_.get("hour") == "2-digit" and locale in ("en", "en-US"))
-        or (options_.get("hour12") is False and locale in ("en", "en-US"))
-        or (options_.get("hour12") is True),
+        or (options_.get("hour12") is False and locale in ("en", "en-US") and not IS_ICU_78_OR_NEWER)
+        or (options_.get("hour12") is True and not IS_ICU_78_OR_NEWER),
     )
 
 

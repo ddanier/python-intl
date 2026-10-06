@@ -7,7 +7,7 @@ import pytest
 
 from python_intl import NumberFormat, NumberFormatOptions
 
-from .utils import normalize_number_range_whitespace, normalize_whitespace
+from .utils import IS_ICU_78_OR_NEWER, normalize_number_range_whitespace, normalize_whitespace
 
 if TYPE_CHECKING:
     from python_intl._types import CurrencyT, UnitT
@@ -72,6 +72,9 @@ def is_known_broken(
     locale: str,
     options_: NumberFormatOptionsDictT,
 ) -> bool:
+    if IS_ICU_78_OR_NEWER:
+        return False
+
     # Sadly some formats don't match, skip for now
     return bool(
         # Differs between °C and only ° between ICU version
