@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import dataclasses
-from functools import cache, cached_property
+from functools import cached_property
 from typing import TYPE_CHECKING, Literal, override
 
 import icu
@@ -90,26 +90,35 @@ _PATTERN_SYMBOL_TO_TYPE: dict[str, DatetimeFormattedPartTypeT] = {
     "X": "time_zone_name",
 }
 _PATTERN_FIELD_TO_TYPE: dict[icu.UDateTimePatternField, DatetimeFormattedPartTypeT] = {
-    icu.DateFormat.ERA_FIELD: "era",
-    icu.DateFormat.YEAR_FIELD: "year",
-    icu.DateFormat.MONTH_FIELD: "month",
-    icu.DateFormat.DAY_OF_WEEK_FIELD: "weekday",
-    icu.DateFormat.DATE_FIELD: "day",
-    icu.DateFormat.AM_PM_FIELD: "day_period",
-    # TODO(ddanier): Use this instead once PyICU has those values in the enum:
-    # https://gitlab.pyicu.org/main/pyicu/-/work_items/180
-    # icu.DateFormat.AM_PM_MIDNIGHT_NOON_FIELD: "day_period",
-    # icu.DateFormat.FLEXIBLE_DAY_PERIOD_FIELD: "day_period",
-    35: "day_period",
-    36: "day_period",
-    icu.DateFormat.HOUR0_FIELD: "hour",
-    icu.DateFormat.HOUR1_FIELD: "hour",
-    icu.DateFormat.HOUR_OF_DAY0_FIELD: "hour",
-    icu.DateFormat.HOUR_OF_DAY1_FIELD: "hour",
-    icu.DateFormat.MINUTE_FIELD: "minute",
-    icu.DateFormat.SECOND_FIELD: "second",
-    icu.DateFormat.MILLISECOND_FIELD: "fraction_second_digits",
-    icu.DateFormat.TIMEZONE_FIELD: "time_zone_name",
+    icu.UDateFormatField.ERA: "era",
+    icu.UDateFormatField.YEAR: "year",
+    icu.UDateFormatField.MONTH: "month",
+    icu.UDateFormatField.DATE: "day",
+    icu.UDateFormatField.HOUR_OF_DAY0: "hour",
+    icu.UDateFormatField.HOUR_OF_DAY1: "hour",
+    icu.UDateFormatField.MINUTE: "minute",
+    icu.UDateFormatField.SECOND: "second",
+    icu.UDateFormatField.FRACTIONAL_SECOND: "fraction_second_digits",
+    icu.UDateFormatField.DAY_OF_WEEK: "weekday",
+    icu.UDateFormatField.AM_PM: "day_period",
+    icu.UDateFormatField.HOUR1: "hour",
+    icu.UDateFormatField.HOUR0: "hour",
+    icu.UDateFormatField.TIMEZONE: "time_zone_name",
+    icu.UDateFormatField.EXTENDED_YEAR: "year",
+    icu.UDateFormatField.TIMEZONE_RFC: "time_zone_name",
+    icu.UDateFormatField.TIMEZONE_GENERIC: "time_zone_name",
+    icu.UDateFormatField.STANDALONE_DAY: "weekday",
+    icu.UDateFormatField.STANDALONE_MONTH: "month",
+    icu.UDateFormatField.TIMEZONE_SPECIAL: "time_zone_name",
+    icu.UDateFormatField.YEAR_NAME: "year",
+    icu.UDateFormatField.AM_PM_MIDNIGHT_NOON: "day_period",
+    icu.UDateFormatField.FLEXIBLE_DAY_PERIOD: "day_period",
+}
+_ICU_HOUR_CYCLE_TO_HOUR_CYCLE: dict[icu.UDateTimePatternField, HourCycleT] = {
+    icu.UDateFormatHourCycle.HOUR_CYCLE_11: "h11",
+    icu.UDateFormatHourCycle.HOUR_CYCLE_12: "h12",
+    icu.UDateFormatHourCycle.HOUR_CYCLE_23: "h23",
+    icu.UDateFormatHourCycle.HOUR_CYCLE_24: "h24",
 }
 _PATTERN_QUOTE = "'"
 
@@ -172,7 +181,10 @@ class DateTimeFormatOptions:
         }
 
 
-def _options_to_possible_skeletons(options: DateTimeFormatOptions) -> Iterable[str]:  # noqa: PLR0912, PLR0915
+def _options_to_possible_skeletons(  # noqa: PLR0912, PLR0915
+    generator: icu.DateTimePatternGenerator,
+    options: DateTimeFormatOptions,
+) -> Iterable[str]:
     skeleton_parts: list[str | tuple[str, ...]] = []
 
     # Note: The parts should be ordered from big to small.
@@ -225,35 +237,39 @@ def _options_to_possible_skeletons(options: DateTimeFormatOptions) -> Iterable[s
         case "narrow":
             skeleton_parts.append("BBBBB")
 
-    match (options.hour_cycle, options.hour12, options.hour):
-        case ("h11", _, "numeric"):
-            skeleton_parts.append(("aK", "K"))
-        case ("h11", _, "2-digit"):
-            skeleton_parts.append(("aKK", "KK"))
-        case ("h12", _, "numeric"):
-            skeleton_parts.append(("ah", "h"))
-        case ("h12", _, "2-digit"):
-            skeleton_parts.append(("ahh", "hh"))
-        case ("h23", _, "numeric"):
+    hour_cycle = options.hour_cycle
+    if not hour_cycle:
+        if options.hour and not options.hour12:
+            hour_cycle = _ICU_HOUR_CYCLE_TO_HOUR_CYCLE[generator.getDefaultHourCycle()]
+        elif options.hour12 is not None:
+            match (options.hour12, generator.getDefaultHourCycle()):
+                case (True, icu.UDateFormatHourCycle.HOUR_CYCLE_11):
+                    hour_cycle = "h11"
+                case (True, icu.UDateFormatHourCycle.HOUR_CYCLE_12):
+                    hour_cycle = "h12"
+                case (True, icu.UDateFormatHourCycle.HOUR_CYCLE_23):
+                    hour_cycle = "h11"
+                case (True, icu.UDateFormatHourCycle.HOUR_CYCLE_24):
+                    hour_cycle = "h12"
+                case (False, _):
+                    hour_cycle = "h23"
+    match (hour_cycle, options.hour):
+        case ("h11", "numeric"):
+            skeleton_parts.append("K")
+        case ("h11", "2-digit"):
+            skeleton_parts.append("KK")
+        case ("h12", "numeric"):
+            skeleton_parts.append("h")
+        case ("h12", "2-digit"):
+            skeleton_parts.append("hh")
+        case ("h23", "numeric"):
             skeleton_parts.append("H")
-        case ("h23", _, "2-digit"):
+        case ("h23", "2-digit"):
             skeleton_parts.append("HH")
-        case ("h24", _, "numeric"):
+        case ("h24", "numeric"):
             skeleton_parts.append("k")
-        case ("h24", _, "2-digit"):
+        case ("h24", "2-digit"):
             skeleton_parts.append("kk")
-        case (_, True, "numeric"):
-            skeleton_parts.append(("ah", "h"))
-        case (_, True, "2-digit"):
-            skeleton_parts.append(("ahh", "hh"))
-        case (_, False, "numeric"):
-            skeleton_parts.append("H")
-        case (_, False, "2-digit"):
-            skeleton_parts.append("HH")
-        case (_, _, "numeric"):
-            skeleton_parts.append("j")
-        case (_, _, "2-digit"):
-            skeleton_parts.append(("jj", "j"))
 
     match options.minute:
         case "numeric":
@@ -341,14 +357,11 @@ class DateTimeIntervalFormattedPart:
         }
 
 
-@cache
 def _options_to_format_pattern(
-    locale: icu.Locale,
+    generator: icu.DateTimePatternGenerator,
     options: DateTimeFormatOptions,
 ) -> _MatchedFormatPattern:
-    possible_skeletons = list(_options_to_possible_skeletons(options))
-
-    generator = icu.DateTimePatternGenerator.createInstance(locale)
+    possible_skeletons = list(_options_to_possible_skeletons(generator, options))
 
     # Try a perfect match
     for skeleton in possible_skeletons:
@@ -411,8 +424,12 @@ class DateTimeFormat:
             self.options = DateTimeFormatOptions(**options)
 
     @cached_property
+    def _icu_datetime_pattern_generator(self) -> icu.DateTimePatternGenerator:
+        return icu.DateTimePatternGenerator.createInstance(self.locale._icu_locale)
+
+    @cached_property
     def _matched_pattern(self) -> _MatchedFormatPattern:
-        return _options_to_format_pattern(self.locale._icu_locale, self.options)
+        return _options_to_format_pattern(self._icu_datetime_pattern_generator, self.options)
 
     @cached_property
     def _icu_pattern(self) -> str:
@@ -485,7 +502,9 @@ class DateTimeFormat:
 
     @cached_property
     def _icu_dateinterval_format(self) -> icu.DateIntervalFormat:
-        possible_skeletons = list(_options_to_possible_skeletons(self.options))
+        possible_skeletons = list(
+            _options_to_possible_skeletons(self._icu_datetime_pattern_generator, self.options),
+        )
         return icu.DateIntervalFormat.createInstance(possible_skeletons[0], self.locale._icu_locale)
 
     def format_range(
