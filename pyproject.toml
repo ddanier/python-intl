@@ -20,6 +20,7 @@ Repository = "https://github.com/ddanier/python-intl"
 dev = [
     "basedpyright>=1.40.1",
     "mypy>=2.3.1",
+    "packaging>=26.3",
     "pylsp-mypy>=0.8.0",
     "pyright>=1.1.411",
     "pytest>=9.1.1",
