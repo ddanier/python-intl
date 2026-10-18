@@ -7,7 +7,12 @@ import pytest
 
 from python_intl import NumberFormat, NumberFormatOptions
 
-from .utils import IS_ICU_78_OR_NEWER, normalize_number_range_whitespace, normalize_whitespace
+from .utils import (
+    IS_ICU_78_OR_NEWER,
+    normalize_number_range_whitespace,
+    normalize_parts_whitespace,
+    normalize_whitespace,
+)
 
 if TYPE_CHECKING:
     from python_intl._types import CurrencyT, UnitT
@@ -29,17 +34,26 @@ LOCALES = [
 ]
 VALUES: list[NumberT] = [
     123,
+    -123,
     123456,
+    1234567890,
+    1234567890.987654321,
     123.456,
     123.0,
     123.1,
     decimal.Decimal("123.456"),
+    decimal.Decimal("1234567890.987654321"),
+]
+SPECIAL_VALUES = [
+    float("nan"),
+    float("inf"),
 ]
 RANGES: list[tuple[NumberT, NumberT]] = [
     (123, 456),
     (123456, 456789000),
     (123.0, 456.789),
     (decimal.Decimal("123.456"), decimal.Decimal("987.654")),
+    (decimal.Decimal("123.456"), decimal.Decimal("1234567890.987654321")),
 ]
 UNITS = [
     "celsius",
@@ -90,7 +104,7 @@ def is_known_broken(
 )
 @pytest.mark.parametrize(
     "value",
-    VALUES,
+    [*VALUES, *SPECIAL_VALUES],
 )
 @pytest.mark.node
 def test_decimal_format(
@@ -115,6 +129,29 @@ def test_decimal_format(
     VALUES,
 )
 @pytest.mark.node
+def test_decimal_format_to_parts(
+    node: NodeRunner,
+    locale: str,
+    value: NumberT,
+):
+    options = NumberFormatOptions(style="decimal")
+    formatter = NumberFormat(locale, options)
+
+    assert (
+        normalize_parts_whitespace([part.to_json() for part in formatter.format_to_parts(value)])
+        == normalize_parts_whitespace(node.numberformat_formattoparts(locale, options, value))
+    )
+
+
+@pytest.mark.parametrize(
+    "locale",
+    LOCALES,
+)
+@pytest.mark.parametrize(
+    "value",
+    [*VALUES, *SPECIAL_VALUES],
+)
+@pytest.mark.node
 def test_percent_format(
     node: NodeRunner,
     locale: str,
@@ -135,6 +172,28 @@ def test_percent_format(
 @pytest.mark.parametrize(
     "value",
     VALUES,
+)
+@pytest.mark.node
+def test_percent_format_to_parts(
+    node: NodeRunner,
+    locale: str,
+    value: NumberT,
+):
+    options = NumberFormatOptions(style="percent")
+    formatter = NumberFormat(locale, options)
+    assert (
+        normalize_parts_whitespace([part.to_json() for part in formatter.format_to_parts(value)])
+        == normalize_parts_whitespace(node.numberformat_formattoparts(locale, options, value))
+    )
+
+
+@pytest.mark.parametrize(
+    "locale",
+    LOCALES,
+)
+@pytest.mark.parametrize(
+    "value",
+    [*VALUES, *SPECIAL_VALUES],
 )
 @pytest.mark.parametrize(
     "unit",
@@ -166,6 +225,47 @@ def test_unit_format(
     assert (
         normalize_whitespace(formatter.format(value))
         == normalize_whitespace(node.numberformat_format(locale, options, value))
+    )
+
+
+@pytest.mark.parametrize(
+    "locale",
+    LOCALES,
+)
+@pytest.mark.parametrize(
+    "value",
+    VALUES,
+)
+@pytest.mark.parametrize(
+    "unit",
+    UNITS,
+)
+@pytest.mark.parametrize(
+    "unit_options",
+    UNIT_OPTIONS,
+)
+@pytest.mark.node
+def test_unit_format_to_parts(
+    node: NodeRunner,
+    locale: str,
+    value: NumberT,
+    unit: UnitT,
+    unit_options: NumberFormatOptionsDictT,
+):
+    full_options_dict: NumberFormatOptionsDictT = {
+        **unit_options,
+        "unit": unit,
+        "style": "unit",
+    }
+
+    if is_known_broken(locale, full_options_dict):
+        pytest.skip()
+
+    options = NumberFormatOptions(**full_options_dict)
+    formatter = NumberFormat(locale, options)
+    assert (
+        normalize_parts_whitespace([part.to_json() for part in formatter.format_to_parts(value)])
+        == normalize_parts_whitespace(node.numberformat_formattoparts(locale, options, value))
     )
 
 
@@ -219,7 +319,7 @@ def test_unit_format_range(
 )
 @pytest.mark.parametrize(
     "value",
-    VALUES,
+    [*VALUES, *SPECIAL_VALUES],
 )
 @pytest.mark.parametrize(
     "currency",
@@ -251,4 +351,45 @@ def test_currency_format(
     assert (
         normalize_whitespace(formatter.format(value))
         == normalize_whitespace(node.numberformat_format(locale, options, value))
+    )
+
+
+@pytest.mark.parametrize(
+    "locale",
+    LOCALES,
+)
+@pytest.mark.parametrize(
+    "value",
+    VALUES,
+)
+@pytest.mark.parametrize(
+    "currency",
+    CURRENCIES,
+)
+@pytest.mark.parametrize(
+    "currency_options",
+    CURRENCY_OPTIONS,
+)
+@pytest.mark.node
+def test_currency_format_to_parts(
+    node: NodeRunner,
+    locale: str,
+    value: NumberT,
+    currency: CurrencyT,
+    currency_options: NumberFormatOptionsDictT,
+):
+    full_options_dict: NumberFormatOptionsDictT = {
+        **currency_options,
+        "currency": currency,
+        "style": "currency",
+    }
+
+    if is_known_broken(locale, full_options_dict):
+        pytest.skip()
+
+    options = NumberFormatOptions(**full_options_dict)
+    formatter = NumberFormat(locale, options)
+    assert (
+        normalize_parts_whitespace([part.to_json() for part in formatter.format_to_parts(value)])
+        == normalize_parts_whitespace(node.numberformat_formattoparts(locale, options, value))
     )

@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Literal, override
 
 import icu
 
+from ._utils import _FormattedPartSpan
 from .locale import Locale
 
 if TYPE_CHECKING:
@@ -386,23 +387,6 @@ def _options_to_format_pattern(
     raise FormatPatternNotFoundError(error)
 
 
-@dataclasses.dataclass(kw_only=True, frozen=True, slots=True)
-class _PartSpan:
-    start: int
-    end: int
-
-    @classmethod
-    def empty(cls) -> _PartSpan:
-        return cls(start=0, end=0)
-
-    @classmethod
-    def from_constrained_fieldposition(cls, position: icu.ConstrainedFieldPosition) -> _PartSpan:
-        return cls(start=position.getStart(), end=position.getLimit())
-
-    def __contains__(self, inner: _PartSpan) -> bool:
-        return inner.start >= self.start and inner.end <= self.end
-
-
 class DateTimeFormat:
     locale: Locale
     options: DateTimeFormatOptions
@@ -524,17 +508,17 @@ class DateTimeFormat:
         formatted = self._icu_dateinterval_format.formatToValue(icu_date_interval)
 
         # Find spans of both datetimes (used to determine which parts have which source)
-        span_start = _PartSpan.empty()
-        span_end = _PartSpan.empty()
+        span_start = _FormattedPartSpan.empty()
+        span_end = _FormattedPartSpan.empty()
         for part in formatted:
             if part.getCategory() == icu.UFieldCategory.DATE_INTERVAL_SPAN:
                 match part.getField():
                     case 0:
-                        span_start = _PartSpan.from_constrained_fieldposition(part)
+                        span_start = _FormattedPartSpan.from_constrained_fieldposition(part)
                     case 1:
-                        span_end = _PartSpan.from_constrained_fieldposition(part)
+                        span_end = _FormattedPartSpan.from_constrained_fieldposition(part)
 
-        def source_of(span: _PartSpan) -> Literal["start_range", "end_range", "shared"]:
+        def source_of(span: _FormattedPartSpan) -> Literal["start_range", "end_range", "shared"]:
             if span in span_start:
                 return "start_range"
             elif span in span_end:
@@ -546,12 +530,12 @@ class DateTimeFormat:
         result_string = str(formatted)
         last_end = 0
         for part in formatted:
-            span = _PartSpan.from_constrained_fieldposition(part)
+            span = _FormattedPartSpan.from_constrained_fieldposition(part)
             if span.start > last_end:
                 yield DateTimeIntervalFormattedPart(
                     type="literal",
                     value=result_string[last_end:span.start],
-                    source=source_of(_PartSpan(start=last_end, end=span.start)),
+                    source=source_of(_FormattedPartSpan(start=last_end, end=span.start)),
                 )
 
             if part.getCategory() == icu.UFieldCategory.DATE:
@@ -568,5 +552,5 @@ class DateTimeFormat:
             yield DateTimeIntervalFormattedPart(
                 type="literal",
                 value=result_string[last_end:],
-                source=source_of(_PartSpan(start=last_end, end=len(result_string))),
+                source=source_of(_FormattedPartSpan(start=last_end, end=len(result_string))),
             )
