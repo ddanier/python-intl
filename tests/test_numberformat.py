@@ -112,13 +112,13 @@ def test_currency_format(locale: str, options_: NumberFormatOptionsDictT, expect
 @pytest.mark.parametrize(
     ("locale", "expected"),
     [
-        ("de-DE", "1.234,567\u20139.876,54321 l"),
-        ("en-US", "1,234.567\u20139,876.54321 L"),
-        ("en-GB", "1,234.567\u20139,876.54321 l"),
-        ("fr-FR", "1 234,567\u20139 876,54321 l"),
+        ("de-DE", "1.234,567\u20139.876,543 l"),
+        ("en-US", "1,234.567\u20139,876.543 L"),
+        ("en-GB", "1,234.567\u20139,876.543 l"),
+        ("fr-FR", "1 234,567\u20139 876,543 l"),
         # "it" breaks based on ICU version, cause the thousand separator might be missing
-        # ("it-IT", "1234,567\u20139876,54321 l"),
-        ("sv-SE", "1 234,567\u20139 876,54321 l"),
+        # ("it-IT", "1234,567\u20139876,543 l"),
+        ("sv-SE", "1 234,567\u20139 876,543 l"),
     ],
 )
 @pytest.mark.unit

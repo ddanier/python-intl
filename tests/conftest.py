@@ -109,6 +109,21 @@ class NodeRunner:
         assert isinstance(result, str)
         return result
 
+    def numberformat_formattoparts(
+        self,
+        locale: str,
+        options: NumberFormatOptions,
+        value: NumberT,
+    ) -> list[dict[str, str]]:
+        result = self._run_node(f"""
+            const formatter = new Intl.NumberFormat({json.dumps(locale)}, {json.dumps(options.to_json())});
+            const value = {str(value) if isinstance(value, decimal.Decimal) else json.dumps(value)};
+            formatter.formatToParts(value);
+        """)
+        assert isinstance(result, list)
+        assert all(isinstance(i, dict) for i in result)
+        return result
+
     def numberformat_formatrange(
         self,
         locale: str,
