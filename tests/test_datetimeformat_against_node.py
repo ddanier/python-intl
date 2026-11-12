@@ -9,6 +9,7 @@ from python_intl import DateTimeFormat
 from python_intl.datetimeformat import DateTimeFormatOptions
 
 from .utils import (
+    IS_ICU_78_3_OR_NEWER,
     IS_ICU_78_OR_NEWER,
     normalize_datetime_range_whitespace,
     normalize_parts_whitespace,
@@ -60,7 +61,7 @@ def is_known_broken(
         (options_.get("year") and options_.get("weekday") and not IS_ICU_78_OR_NEWER)
         or (options_.get("hour12") is False and locale in ("en", "en-US"))
         or (options_.get("hour") == "2-digit" and locale in ("en", "en-US"))
-        or (options_.get("day_period") and locale in ("en", "en-US") and not IS_ICU_78_OR_NEWER),
+        or (options_.get("day_period") and locale in ("en", "en-US") and not IS_ICU_78_3_OR_NEWER),
     )
 
 

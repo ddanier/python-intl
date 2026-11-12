@@ -9,6 +9,7 @@ NUMBER_RANGE_WHITESPACE_RE = re.compile("\\s?[\u2012\u2013-]\\s?")
 
 ICU_VERSION =  Version(icu.ICU_VERSION)
 IS_ICU_78_OR_NEWER = Version("78.0") <= ICU_VERSION
+IS_ICU_78_3_OR_NEWER = Version("78.3") <= ICU_VERSION
 
 
 def normalize_whitespace(value: str) -> str:
