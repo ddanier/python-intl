@@ -84,7 +84,7 @@ formatter.format(number)
 | Method                            | Status | Python name                          |
 | --------------------------------- | :----: | ------------------------------------ |
 | `NumberFormat.format`             | ✅     |                                      |
-| `NumberFormat.formatToParts`      | ❌     | `NumberFormat.format_to_parts`       |
+| `NumberFormat.formatToParts`      | ✅     | `NumberFormat.format_to_parts`       |
 | `NumberFormat.supportedLocalesOf` | ❌     |                                      |
 | `NumberFormat.formatRange`        | ✅     | `NumberFormat.format_range`          |
 | `NumberFormat.formatRangeToParts` | ❌     | `NumberFormat.format_range_to_parts` |
