@@ -13,7 +13,7 @@
           "command": "ruff",
           // We don't want to use "ruff format" as it changes way to much,
           // also removing formatting deliberately added to improve
-          // reabability.
+          // readability.
           "arguments": ["check", "--fix", "--silent", "-"],
         },
       },
