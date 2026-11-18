@@ -9,6 +9,9 @@ from .datetimeformat import (
     DateTimeIntervalFormattedPart as DateTimeIntervalFormattedPart,
     FormatPatternNotFoundError as FormatPatternNotFoundError,
 )
+from .locale import (
+    Locale as Locale,
+)
 from .numberformat import (
     InvalidNumberFormatOptionError as InvalidNumberFormatOptionError,
     NumberFormat as NumberFormat,
