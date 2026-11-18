@@ -7,6 +7,16 @@
         "basedpyright",
         "pylsp",
       ],
+      "format_on_save": "on",
+      "formatter": {
+        "external": {
+          "command": "ruff",
+          // We don't want to use "ruff format" as it changes way to much,
+          // also removing formatting deliberately added to improve
+          // reabability.
+          "arguments": ["check", "--fix", "--silent", "-"],
+        },
+      },
     },
   },
   "lsp": {
