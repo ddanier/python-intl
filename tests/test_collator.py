@@ -32,6 +32,20 @@ STRINGS_NUMERIC = [
 ]
 
 
+def test_repr() -> None:
+    assert repr(Collator(locale="de")) == (
+        "Collator("
+        "locale=Locale(tag='de'), "
+        "options=CollatorOptions("
+        "locale_matcher='best fit', "
+        "numeric=False, "
+        "case_first='false', "
+        "sensitivity='variant', "
+        "ignore_punctuation=None)"
+        ")"
+    )
+
+
 @pytest.mark.parametrize(
     ("locale", "options_", "input_list", "expectation"),
     [

@@ -554,3 +554,7 @@ class DateTimeFormat:
                 value=result_string[last_end:],
                 source=source_of(_FormattedPartSpan(start=last_end, end=len(result_string))),
             )
+
+    @override
+    def __repr__(self) -> str:
+        return f"DateTimeFormat(locale={self.locale!r}, options={self.options!r})"

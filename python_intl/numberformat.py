@@ -3,7 +3,7 @@ from __future__ import annotations
 import dataclasses
 import decimal
 from functools import cached_property
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, override
 
 import icu
 
@@ -336,3 +336,7 @@ class NumberFormat:
             case _:
                 error = "Both parameters passed to format_range must have the same type"
                 raise ValueError(error)
+
+    @override
+    def __repr__(self) -> str:
+        return f"NumberFormat(locale={self.locale!r}, options={self.options!r})"

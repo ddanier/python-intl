@@ -12,6 +12,22 @@ if TYPE_CHECKING:
     from python_intl.numberformat import NumberFormatOptionsDictT
 
 
+def test_repr() -> None:
+    assert repr(NumberFormat(locale="de")) == (
+        "NumberFormat("
+        "locale=Locale(tag='de'), "
+        "options=NumberFormatOptions("
+        "locale_matcher='best fit', "
+        "style='decimal', "
+        "currency=None, "
+        "currency_display='symbol', "
+        "currency_sign='standard', "
+        "unit=None, "
+        "unit_display='short')"
+        ")"
+    )
+
+
 @pytest.mark.parametrize(
     ("locale", "expected"),
     [

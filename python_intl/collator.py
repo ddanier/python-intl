@@ -3,7 +3,7 @@ from __future__ import annotations
 import dataclasses
 import functools
 from functools import cached_property
-from typing import TYPE_CHECKING, overload
+from typing import TYPE_CHECKING, overload, override
 
 import icu
 
@@ -132,3 +132,7 @@ class Collator:
                 else self.compare,
             ),
         )
+
+    @override
+    def __repr__(self) -> str:
+        return f"Collator(locale={self.locale!r}, options={self.options!r})"
