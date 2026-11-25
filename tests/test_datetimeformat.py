@@ -14,6 +14,29 @@ if TYPE_CHECKING:
     from python_intl.datetimeformat import DateTimeFormatOptionsDictT
 
 
+def test_repr() -> None:
+    assert repr(DateTimeFormat(locale="de")) == (
+        "DateTimeFormat("
+        "locale=Locale(tag='de'), "
+        "options=DateTimeFormatOptions("
+        "locale_matcher='best fit', "
+        "hour12=None, "
+        "hour_cycle=None, "
+        "era=None, "
+        "year=None, "
+        "month=None, "
+        "weekday=None, "
+        "day=None, "
+        "day_period=None, "
+        "hour=None, "
+        "minute=None, "
+        "second=None, "
+        "fraction_second_digits=None, "
+        "time_zone_name=None)"
+        ")"
+    )
+
+
 @pytest.mark.parametrize(
     ("options_", "expected"),
     [
